@@ -15,6 +15,8 @@
  */
 package com.blockwithme.time;
 
+import java.util.Date;
+
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
@@ -77,10 +79,10 @@ public class NanoClock extends Clock {
         return instant(CurrentTimeNanos.utcTimeNanos());
     }
 
-    public static Instant instant(final long currentTimeNanos) {
-        final long epochSecond = currentTimeNanos / 1000000000L;
-        final long nanoAdjustment = currentTimeNanos - epochSecond
-                * 1000000000L;
+    /** Creates an Instant, using the UTC current time in nano-seconds. */
+    public static Instant instant(final long utcTimeNanos) {
+        final long epochSecond = utcTimeNanos / 1000000000L;
+        final long nanoAdjustment = utcTimeNanos - epochSecond * 1000000000L;
         return Instant.ofEpochSecond(epochSecond, nanoAdjustment);
     }
 
@@ -120,6 +122,7 @@ public class NanoClock extends Clock {
                 + ZonedDateTime.now(NanoClock.systemUTC()));
         System.out.println("DateTime Local: "
                 + ZonedDateTime.now(NanoClock.systemDefaultZone()));
-        ;
+        System.out.println("toEpochMilli(): "
+                + new Date(NanoClock.systemUTC().instant().toEpochMilli()));
     }
 }
