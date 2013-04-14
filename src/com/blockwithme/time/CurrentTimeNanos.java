@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -39,8 +40,11 @@ import org.apache.commons.net.ntp.TimeInfo;
  * return a value as close as possible to the real time, even if the local
  * clock is skewed. If this fails, we try to get the time using webservers.
  *
- * TODO: This class cannot currently handle the summer/winter time changes
- * done by the OS, *while the JVM is running*.
+ * Beware, that for everything to work correctly, we have to change the default
+ * time zone to UTC. So if you use other APIs to manipulate the time except
+ * this class and NanoClock, you might get strange results.
+ *
+ * I think this code is now immune to DST problems, but this must still be tested.
  *
  * @author monster
  */
@@ -171,7 +175,11 @@ public class CurrentTimeNanos {
     /** UTC Time in nanoseconds, at last call. */
     private static final AtomicLong LAST_NANO_TIME = new AtomicLong();
 
+    /** The original local time zone. */
+    public static final TimeZone DEFAULT_LOCAL = TimeZone.getDefault();
+
     static {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         final TimeData first = newTimeData(null);
         if (first != null) {
             TIME_DATA.set(first);
@@ -414,7 +422,7 @@ public class CurrentTimeNanos {
         // at any time. This is a bit expensive, but local time should only be
         // used for display, not computation, so it's probably OK.
         final long utcMiliseconds = utcTimeNanos / 1000000L;
-        final Calendar cal = Calendar.getInstance();
+        final Calendar cal = Calendar.getInstance(DEFAULT_LOCAL);
         cal.setTimeInMillis(utcMiliseconds);
         return utcTimeNanos
                 + (cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET))
@@ -433,7 +441,8 @@ public class CurrentTimeNanos {
     }
 
     public static void main(final String[] args) {
-        System.out.println(new Date(localTimeNanos() / 1000000L));
+        System.out.println("UTC   " + new Date(utcTimeNanos() / 1000000L));
+        System.out.println("LOCAL " + new Date(localTimeNanos() / 1000000L));
 
 //        final long nanoA = System.nanoTime();
 //        final Long offset1 = getNanoTimeToUTCTimeOffsetInNS();

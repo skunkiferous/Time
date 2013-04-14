@@ -19,6 +19,7 @@ import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 /**
  * NanoClock is a system clock with nano precision.
@@ -29,16 +30,24 @@ import org.threeten.bp.ZoneOffset;
  * @author monster
  */
 public class NanoClock extends Clock {
+
+    /** The UTC clock instance. */
+    private static final NanoClock UTC = new NanoClock(ZoneOffset.UTC);
+
+    /** The local clock instance. */
+    private static final NanoClock LOCAL = new NanoClock(
+            ZoneId.of(CurrentTimeNanos.DEFAULT_LOCAL.getID()));
+
     private final ZoneId zone;
 
     /** @see org.threeten.bp.Clock#systemUTC() */
-    public static Clock systemUTC() {
-        return new NanoClock(ZoneOffset.UTC);
+    public static NanoClock systemUTC() {
+        return UTC;
     }
 
     /** @see org.threeten.bp.Clock#systemDefaultZone() */
     public static Clock systemDefaultZone() {
-        return new NanoClock(ZoneId.systemDefault());
+        return LOCAL;
     }
 
     private NanoClock(final ZoneId zone) {
@@ -60,14 +69,12 @@ public class NanoClock extends Clock {
 
     @Override
     public long millis() {
-        // TODO: Find a way to use UTC instead
-        return CurrentTimeNanos.localTimeNanos() / 1000000L;
+        return CurrentTimeNanos.utcTimeNanos() / 1000000L;
     }
 
     @Override
     public Instant instant() {
-        // TODO: Find a way to use UTC instead
-        return instant(CurrentTimeNanos.localTimeNanos());
+        return instant(CurrentTimeNanos.utcTimeNanos());
     }
 
     public static Instant instant(final long currentTimeNanos) {
@@ -107,10 +114,12 @@ public class NanoClock extends Clock {
                 + Clock.systemDefaultZone().instant());
         System.out.println("NanoClock.systemDefaultZone().instant():   "
                 + NanoClock.systemDefaultZone().instant());
+        System.out.println("NanoClock.systemDefaultZone():   "
+                + NanoClock.systemDefaultZone());
         System.out.println("DateTime UTC: "
-                + NanoClock.systemUTC().instant().atZone(ZoneOffset.UTC));
+                + ZonedDateTime.now(NanoClock.systemUTC()));
         System.out.println("DateTime Local: "
-                + NanoClock.systemUTC().instant()
-                        .atZone(ZoneOffset.systemDefault()));
+                + ZonedDateTime.now(NanoClock.systemDefaultZone()));
+        ;
     }
 }
