@@ -13,3 +13,4 @@ This project tries to solve several time-related problems:
 
 This, as you can imagine, requires that we go out in the Internet, and query what the real time is, independent of what the host think it is. This all grew from the realisation, that a large part of our users have totally wrong system time, and we need accurate system time for our operation. So the use of this API relieves the user from the burden of making sure the local system time is correct. We do expect that the user will at least get their time-zone right, if they want accurate local time.
 
+The implementation has been moved to a separate project: TimeImpl
