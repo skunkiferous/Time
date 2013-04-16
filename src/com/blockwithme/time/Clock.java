@@ -19,8 +19,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.threeten.bp.Instant;
-
 import com.blockwithme.time.Scheduler.Executor;
 
 /**
@@ -67,21 +65,6 @@ public class Clock {
         }
 
         @Override
-        public long localCurrentTimeMillis() {
-            throw new InternalError("ClockService not initialized!");
-        }
-
-        @Override
-        public long localCurrentTimeNanos() {
-            throw new InternalError("ClockService not initialized!");
-        }
-
-        @Override
-        public Date localDate() {
-            throw new InternalError("ClockService not initialized!");
-        }
-
-        @Override
         public Calendar localCalendar() {
             throw new InternalError("ClockService not initialized!");
         }
@@ -92,32 +75,12 @@ public class Clock {
         }
 
         @Override
-        public Date toUTC(final Date localDate) {
-            throw new InternalError("ClockService not initialized!");
-        }
-
-        @Override
-        public Date toLocal(final Date utcDate) {
-            throw new InternalError("ClockService not initialized!");
-        }
-
-        @Override
-        public long toUTCMillis(final long localMillis) {
-            throw new InternalError("ClockService not initialized!");
-        }
-
-        @Override
-        public long toLocalMillis(final long utcMillis) {
-            throw new InternalError("ClockService not initialized!");
-        }
-
-        @Override
-        public Instant nanosToInstant(final long utcTimeNanos) {
-            throw new InternalError("ClockService not initialized!");
-        }
-
-        @Override
         public <T> Scheduler<T> createNewScheduler(final Executor<T> executor) {
+            throw new InternalError("ClockService not initialized!");
+        }
+
+        @Override
+        public Scheduler<Runnable> getDefaultRunnableScheduler() {
             throw new InternalError("ClockService not initialized!");
         }
     }
@@ -198,53 +161,18 @@ public class Clock {
         return clockService.localClock();
     }
 
-    /** Returns the current *local* time, in milliseconds. */
-    public static long localCurrentTimeMillis() {
-        return clockService.localCurrentTimeMillis();
-    }
-
-    /** Returns the current *local* time, in nanoseconds. */
-    public static long localCurrentTimeNanos() {
-        return clockService.localCurrentTimeNanos();
-    }
-
-    /** Returns a new Date, using the current *local* time. */
-    public static Date localDate() {
-        return clockService.localDate();
-    }
-
     /** Returns a new Calendar, using the current *local* time. */
     public static Calendar localCalendar() {
         return clockService.localCalendar();
     }
 
-    /** Converts a local Date to a UTC Date. */
-    public static Date toUTC(final Date localDate) {
-        return clockService.toUTC(localDate);
-    }
-
-    /** Converts a UTC Date to a local Date. */
-    public static Date toLocal(final Date utcDate) {
-        return clockService.toLocal(utcDate);
-    }
-
-    /** Converts a local time in milliseconds to a UTC time in milliseconds. */
-    public static long toUTCMillis(final long localMillis) {
-        return clockService.toUTCMillis(localMillis);
-    }
-
-    /** Converts a UTC time in milliseconds to a local time in milliseconds. */
-    public static long toLocalMillis(final long utcMillis) {
-        return clockService.toLocalMillis(utcMillis);
-    }
-
-    /** Creates an Instant, using the UTC current time in nano-seconds. */
-    public static Instant nanosToInstant(final long utcTimeNanos) {
-        return clockService.nanosToInstant(utcTimeNanos);
-    }
-
     /** Creates a new Scheduler<T>, using the given executor. */
-    public <T> Scheduler<T> createNewScheduler(final Executor<T> executor) {
+    public static <T> Scheduler<T> createNewScheduler(final Executor<T> executor) {
         return clockService.createNewScheduler(executor);
+    }
+
+    /** Returns a default Scheduler, for executing Runnables. */
+    public static Scheduler<Runnable> getDefaultRunnableScheduler() {
+        return clockService.getDefaultRunnableScheduler();
     }
 }

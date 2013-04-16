@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.threeten.bp.Clock;
-import org.threeten.bp.Instant;
 
 /**
  * ClockService defines methods related to getting the current time, in
@@ -56,15 +55,6 @@ public interface ClockService {
     /** The original default local time zone. */
     TimeZone localTimeZone();
 
-    /** Returns the current *local* time, in milliseconds. */
-    long localCurrentTimeMillis();
-
-    /** Returns the current *local* time, in nanoseconds. */
-    long localCurrentTimeNanos();
-
-    /** Returns a new Date, using the current *local* time. */
-    Date localDate();
-
     /** Returns a new Calendar, using the current *local* time. */
     Calendar localCalendar();
 
@@ -78,21 +68,9 @@ public interface ClockService {
      */
     Clock localClock();
 
-    /** Converts a local Date to a UTC Date. */
-    Date toUTC(Date localDate);
-
-    /** Converts a UTC Date to a local Date. */
-    Date toLocal(Date utcDate);
-
-    /** Converts a local time in milliseconds to a UTC time in milliseconds. */
-    long toUTCMillis(long localMillis);
-
-    /** Converts a UTC time in milliseconds to a local time in milliseconds. */
-    long toLocalMillis(long utcMillis);
-
-    /** Creates an Instant, using the UTC current time in nano-seconds. */
-    Instant nanosToInstant(long utcTimeNanos);
-
     /** Creates a new Scheduler<T>, using the given executor. */
     <T> Scheduler<T> createNewScheduler(final Scheduler.Executor<T> executor);
+
+    /** Returns a default Scheduler, for executing Runnables. */
+    Scheduler<Runnable> getDefaultRunnableScheduler();
 }
