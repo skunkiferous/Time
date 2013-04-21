@@ -18,8 +18,12 @@ package com.blockwithme.time;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import com.blockwithme.time.Scheduler.Executor;
+import javax.inject.Inject;
+
+import com.blockwithme.time.Scheduler.Handler;
 
 /**
  * Gives static access to the ClockService.
@@ -34,54 +38,78 @@ public class Clock {
     /** Dummy ClockService implementation, to be used until initialized. */
     private static final class DummyClockService implements ClockService {
 
+        /** How long to wait before failing? */
+        private static final long WAIT_FOR_REAL_SERVICE = 5000;
+
+        /** Blocks the callers, instead of failing immediately. */
+        private final CountDownLatch startSignal = new CountDownLatch(1);
+
+        private ClockService waitForStart() {
+            try {
+                startSignal.await(WAIT_FOR_REAL_SERVICE, TimeUnit.MILLISECONDS);
+            } catch (final InterruptedException e) {
+                // NOP
+            }
+            final ClockService result = Clock.getClockService();
+            if (result != null) {
+                return result;
+            }
+            throw new InternalError("ClockService not initialized!");
+        }
+
         @Override
         public long currentTimeMillis() {
-            throw new InternalError("ClockService not initialized!");
+            return waitForStart().currentTimeMillis();
         }
 
         @Override
         public long currentTimeNanos() {
-            throw new InternalError("ClockService not initialized!");
+            return waitForStart().currentTimeNanos();
+        }
+
+        @Override
+        public long startTimeNanos() {
+            return waitForStart().startTimeNanos();
+        }
+
+        @Override
+        public long elapsedTimeNanos() {
+            return waitForStart().elapsedTimeNanos();
         }
 
         @Override
         public Date date() {
-            throw new InternalError("ClockService not initialized!");
+            return waitForStart().date();
         }
 
         @Override
         public Calendar calendar() {
-            throw new InternalError("ClockService not initialized!");
+            return waitForStart().calendar();
         }
 
         @Override
         public org.threeten.bp.Clock clock() {
-            throw new InternalError("ClockService not initialized!");
+            return waitForStart().clock();
         }
 
         @Override
         public TimeZone localTimeZone() {
-            throw new InternalError("ClockService not initialized!");
+            return waitForStart().localTimeZone();
         }
 
         @Override
         public Calendar localCalendar() {
-            throw new InternalError("ClockService not initialized!");
+            return waitForStart().localCalendar();
         }
 
         @Override
         public org.threeten.bp.Clock localClock() {
-            throw new InternalError("ClockService not initialized!");
+            return waitForStart().localClock();
         }
 
         @Override
-        public <T> Scheduler<T> createNewScheduler(final Executor<T> executor) {
-            throw new InternalError("ClockService not initialized!");
-        }
-
-        @Override
-        public Scheduler<Runnable> getDefaultRunnableScheduler() {
-            throw new InternalError("ClockService not initialized!");
+        public Scheduler createNewScheduler(final Handler errorHandler) {
+            return waitForStart().createNewScheduler(errorHandler);
         }
     }
 
@@ -96,11 +124,17 @@ public class Clock {
     }
 
     /** Sets the ClockService. */
+    @Inject
     public static void setClockService(final ClockService newClockService) {
         if (newClockService == null) {
             throw new IllegalArgumentException("newClockService is null");
         }
+        final ClockService old = clockService;
         clockService = newClockService;
+        if (old instanceof DummyClockService) {
+            final DummyClockService dummy = (DummyClockService) old;
+            dummy.startSignal.countDown();
+        }
     }
 
     /** Returns the ClockService. */
@@ -120,6 +154,16 @@ public class Clock {
     /** Returns the current *UTC* time, in nanoseconds. */
     public static long currentTimeNanos() {
         return clockService.currentTimeNanos();
+    }
+
+    /** Returns the start *UTC* time, in nanoseconds, when the service was created. */
+    public static long startTimeNanos() {
+        return clockService.startTimeNanos();
+    }
+
+    /** Returns the elapsed time, in nanoseconds, since the service was created. */
+    public static long elapsedTimeNanos() {
+        return clockService.elapsedTimeNanos();
     }
 
     /** Returns a new Date, using the current *UTC* time. */
@@ -166,13 +210,8 @@ public class Clock {
         return clockService.localCalendar();
     }
 
-    /** Creates a new Scheduler<T>, using the given executor. */
-    public static <T> Scheduler<T> createNewScheduler(final Executor<T> executor) {
-        return clockService.createNewScheduler(executor);
-    }
-
-    /** Returns a default Scheduler, for executing Runnables. */
-    public static Scheduler<Runnable> getDefaultRunnableScheduler() {
-        return clockService.getDefaultRunnableScheduler();
+    /** Creates a new Scheduler, using the given Error Handler. */
+    public static Scheduler createNewScheduler(final Handler errorHandler) {
+        return clockService.createNewScheduler(errorHandler);
     }
 }

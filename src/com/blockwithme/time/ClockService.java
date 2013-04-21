@@ -21,6 +21,8 @@ import java.util.TimeZone;
 
 import org.threeten.bp.Clock;
 
+import com.blockwithme.time.Scheduler.Handler;
+
 /**
  * ClockService defines methods related to getting the current time, in
  * multiple forms. Normally, it will be the UTC time, except for
@@ -35,6 +37,12 @@ public interface ClockService {
 
     /** Returns the current *UTC* time, in nanoseconds. */
     long currentTimeNanos();
+
+    /** Returns the start *UTC* time, in nanoseconds, when the service was created. */
+    long startTimeNanos();
+
+    /** Returns the elapsed time, in nanoseconds, since the service was created. */
+    long elapsedTimeNanos();
 
     /** Returns a new Date, using the current *UTC* time. */
     Date date();
@@ -68,9 +76,6 @@ public interface ClockService {
      */
     Clock localClock();
 
-    /** Creates a new Scheduler<T>, using the given executor. */
-    <T> Scheduler<T> createNewScheduler(final Scheduler.Executor<T> executor);
-
-    /** Returns a default Scheduler, for executing Runnables. */
-    Scheduler<Runnable> getDefaultRunnableScheduler();
+    /** Creates a new Scheduler, for executing Runnable tasks. */
+    Scheduler createNewScheduler(final Handler errorHandler);
 }

@@ -101,18 +101,33 @@
 			<artifactId>threetenbp</artifactId>
 			<version>0.8.1</version>
 		</dependency>
-	       <dependency>
-        	    <groupId>org.osgi</groupId>
-	            <artifactId>org.osgi.core</artifactId>
-        	    <version>4.3.0</version>
-	            <scope>provided</scope>
-        	</dependency>
-	        <dependency>
-        	    <groupId>org.osgi</groupId>
-	            <artifactId>org.osgi.compendium</artifactId>
-        	    <version>4.3.1</version>
-	        </dependency>
-	</dependencies>
+       <dependency>
+       	    <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+       	    <version>4.3.0</version>
+            <scope>provided</scope>
+       	</dependency>
+        <dependency>
+       	    <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+       	    <version>4.3.1</version>
+        </dependency>
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+			<version>3.0</version>
+		</dependency>
+	    <dependency>
+	      <groupId>org.ops4j</groupId>
+	      <artifactId>peaberry</artifactId>
+	      <version>1.1.1</version>
+	    </dependency>
+   	</dependencies>
 
 	<repositories>
 		<repository>
