@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Sebastien Diot.
+* Copyright (C) 2013 Sebastien Diot.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import com.blockwithme.time.Scheduler.Handler;
  *
  * @author monster
  */
-public interface ClockService {
+public interface ClockService extends AutoCloseable {
 
     /** Returns the current *UTC* time, in milliseconds. */
     long currentTimeMillis();
@@ -76,6 +76,9 @@ public interface ClockService {
      */
     Clock localClock();
 
-    /** Creates a new Scheduler, for executing Runnable tasks. */
+    /**
+     * Creates a new Scheduler, for executing Runnable tasks.
+     * @param errorHandler can be null.
+     */
     Scheduler createNewScheduler(final Handler errorHandler);
 }

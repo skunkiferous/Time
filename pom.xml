@@ -12,7 +12,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.blockwithme</groupId>
 	<artifactId>Time</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<packaging>bundle</packaging>
 	<name>Time</name>
 	<description>Time, and time-based task execution, that still works in the presence of a bad system clock.</description>
@@ -117,16 +117,6 @@
 			<artifactId>javax.inject</artifactId>
 			<version>1</version>
 		</dependency>
-		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
-			<version>3.0</version>
-		</dependency>
-	    <dependency>
-	      <groupId>org.ops4j</groupId>
-	      <artifactId>peaberry</artifactId>
-	      <version>1.1.1</version>
-	    </dependency>
    	</dependencies>
 
 	<repositories>

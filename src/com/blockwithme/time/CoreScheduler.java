@@ -1,0 +1,46 @@
+/*
+ * Copyright (C) 2013 Sebastien Diot.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.blockwithme.time;
+
+import com.blockwithme.time.Scheduler.Handler;
+
+/**
+ * CoreScheduler is the interface required to implement the core (singleton)
+ * scheduler. All the other schedulers are "lightweight" schedulers built on
+ * top of it. This makes scheduler creation cheap. Lightweight means that
+ * only the core scheduler needs it's own thread.
+ *
+ * @author monster
+ */
+public interface CoreScheduler extends AutoCloseable {
+
+    /** @see java.util.Timer.cancel() */
+    @Override
+    void close() throws Exception;
+
+    /** @see scheduleAtFixedRate(TimerTask,long,long) */
+    Task scheduleAtFixedRateNS(final Runnable task, final Handler errorHandler,
+            final long delayNS, final long periodNS);
+
+    /** @see scheduleAtFixedPeriod(TimerTask,long,long) */
+    Task scheduleAtFixedPeriodNS(final Runnable task,
+            final Handler errorHandler, final long delayNS, final long periodNS);
+
+    /** @see schedule(TimerTask,long) */
+    Task scheduleNS(final Runnable task, final Handler errorHandler,
+            final long delayNS);
+
+}

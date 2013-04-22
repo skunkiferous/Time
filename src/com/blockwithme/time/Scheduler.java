@@ -36,9 +36,20 @@ import org.threeten.bp.ZonedDateTime;
  * We also accept nano-seconds values for convenience, in the methods suffixed
  * with "NS".
  *
+ * The scheduler instances are lightweight, which mean they do not get their
+ * own thread, and so can be cheaply created and destroyed. OTOH, it means that
+ * tasks should never block or take a long time to perform, as this will block
+ * all other scheduled tasks.
+ *
  * @author monster
  */
 public interface Scheduler extends AutoCloseable {
+
+    /** Exception handler. */
+    interface Handler {
+        /** Handles exceptions. */
+        void onError(final Runnable task, final Throwable error);
+    }
 
     /** One minute, in milli-seconds. */
     long MINUTE_MS = 60L * 1000L;
@@ -58,133 +69,124 @@ public interface Scheduler extends AutoCloseable {
     /** One day, in nano-seconds. */
     long DAY_NS = DAY_MS * 1000000L;
 
-    /** Exception handler. */
-    interface Handler {
-        /** Handles exceptions. */
-        void onError(final Runnable task, final Throwable error);
-    }
-
     /** @see java.util.Timer.cancel() */
     @Override
     void close() throws Exception;
 
-    /** @see java.util.Timer.purge() */
-    int purge();
+    /** @see java.util.Timer.schedule(TimerTask,java.util.Date) */
+    Task schedule(Runnable task, final Date timeUTC);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date) */
-    void schedule(Runnable task, final Date timeUTC);
+    Task schedule(Runnable task, final Instant timeUTC);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date) */
-    void schedule(Runnable task, final Instant timeUTC);
+    Task schedule(Runnable task, final ZonedDateTime dateTime);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date) */
-    void schedule(Runnable task, final ZonedDateTime dateTime);
+    Task schedule(Runnable task, final LocalDateTime dateTime);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date) */
-    void schedule(Runnable task, final LocalDateTime dateTime);
-
-    /** @see java.util.Timer.schedule(TimerTask,java.util.Date) */
-    void schedule(Runnable task, final LocalTime time);
+    Task schedule(Runnable task, final LocalTime time);
 
     /** @see java.util.Timer.schedule(TimerTask,long) */
-    void schedule(Runnable task, final long delayMS);
+    Task schedule(Runnable task, final long delayMS);
 
     /** @see java.util.Timer.schedule(TimerTask,long) */
-    void scheduleNS(Runnable task, final long delayNS);
+    Task scheduleNS(Runnable task, final long delayNS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedPeriod(Runnable task, final Date firstTimeUTC,
+    Task scheduleAtFixedPeriod(Runnable task, final Date firstTimeUTC,
             final long periodMS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedPeriod(Runnable task, final Instant firstTimeUTC,
+    Task scheduleAtFixedPeriod(Runnable task, final Instant firstTimeUTC,
             final long periodMS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedPeriod(Runnable task, final ZonedDateTime firstTime,
+    Task scheduleAtFixedPeriod(Runnable task, final ZonedDateTime firstTime,
             final long periodMS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedPeriod(Runnable task, final LocalDateTime firstTime,
+    Task scheduleAtFixedPeriod(Runnable task, final LocalDateTime firstTime,
             final long periodMS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedPeriod(Runnable task, final LocalTime firstTime,
+    Task scheduleAtFixedPeriod(Runnable task, final LocalTime firstTime,
             final long periodMS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedPeriodNS(Runnable task, final Date firstTimeUTC,
+    Task scheduleAtFixedPeriodNS(Runnable task, final Date firstTimeUTC,
             final long periodNS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedPeriodNS(Runnable task, final Instant firstTimeUTC,
+    Task scheduleAtFixedPeriodNS(Runnable task, final Instant firstTimeUTC,
             final long periodNS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedPeriodNS(Runnable task, final ZonedDateTime firstTime,
+    Task scheduleAtFixedPeriodNS(Runnable task, final ZonedDateTime firstTime,
             final long periodNS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedPeriodNS(Runnable task, final LocalDateTime firstTime,
+    Task scheduleAtFixedPeriodNS(Runnable task, final LocalDateTime firstTime,
             final long periodNS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedPeriodNS(Runnable task, final LocalTime firstTime,
+    Task scheduleAtFixedPeriodNS(Runnable task, final LocalTime firstTime,
             final long periodNS);
 
     /** @see java.util.Timer.schedule(TimerTask,long,long) */
-    void scheduleAtFixedPeriod(Runnable task, final long delayMS,
+    Task scheduleAtFixedPeriod(Runnable task, final long delayMS,
             final long periodMS);
 
     /** @see java.util.Timer.schedule(TimerTask,long,long) */
-    void scheduleAtFixedPeriodNS(Runnable task, final long delayNS,
+    Task scheduleAtFixedPeriodNS(Runnable task, final long delayNS,
             final long periodNS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedRate(Runnable task, final Date firstTimeUTC,
+    Task scheduleAtFixedRate(Runnable task, final Date firstTimeUTC,
             final long periodMS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedRate(Runnable task, final Instant firstTimeUTC,
+    Task scheduleAtFixedRate(Runnable task, final Instant firstTimeUTC,
             final long periodMS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedRate(Runnable task, final ZonedDateTime firstTime,
+    Task scheduleAtFixedRate(Runnable task, final ZonedDateTime firstTime,
             final long periodMS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedRate(Runnable task, final LocalDateTime firstTime,
+    Task scheduleAtFixedRate(Runnable task, final LocalDateTime firstTime,
             final long periodMS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedRate(Runnable task, final LocalTime firstTime,
+    Task scheduleAtFixedRate(Runnable task, final LocalTime firstTime,
             final long periodMS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedRateNS(Runnable task, final Date firstTimeUTC,
+    Task scheduleAtFixedRateNS(Runnable task, final Date firstTimeUTC,
             final long periodNS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedRateNS(Runnable task, final Instant firstTimeUTC,
+    Task scheduleAtFixedRateNS(Runnable task, final Instant firstTimeUTC,
             final long periodNS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedRateNS(Runnable task, final ZonedDateTime firstTime,
+    Task scheduleAtFixedRateNS(Runnable task, final ZonedDateTime firstTime,
             final long periodNS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedRateNS(Runnable task, final LocalDateTime firstTime,
+    Task scheduleAtFixedRateNS(Runnable task, final LocalDateTime firstTime,
             final long periodNS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    void scheduleAtFixedRateNS(Runnable task, final LocalTime firstTime,
+    Task scheduleAtFixedRateNS(Runnable task, final LocalTime firstTime,
             final long periodNS);
 
     /** @see scheduleAtFixedRate(TimerTask,long,long) */
-    void scheduleAtFixedRate(final Runnable task, final long delayMS,
+    Task scheduleAtFixedRate(final Runnable task, final long delayMS,
             final long periodMS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,long,long) */
-    void scheduleAtFixedRateNS(Runnable task, final long delayNS,
+    Task scheduleAtFixedRateNS(Runnable task, final long delayNS,
             final long periodNS);
 }

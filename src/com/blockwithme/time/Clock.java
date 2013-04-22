@@ -39,7 +39,7 @@ public class Clock {
     private static final class DummyClockService implements ClockService {
 
         /** How long to wait before failing? */
-        private static final long WAIT_FOR_REAL_SERVICE = 5000;
+        private static final long WAIT_FOR_REAL_SERVICE = 3000;
 
         /** Blocks the callers, instead of failing immediately. */
         private final CountDownLatch startSignal = new CountDownLatch(1);
@@ -110,6 +110,11 @@ public class Clock {
         @Override
         public Scheduler createNewScheduler(final Handler errorHandler) {
             return waitForStart().createNewScheduler(errorHandler);
+        }
+
+        @Override
+        public void close() throws Exception {
+            waitForStart().close();
         }
     }
 
@@ -213,5 +218,12 @@ public class Clock {
     /** Creates a new Scheduler, using the given Error Handler. */
     public static Scheduler createNewScheduler(final Handler errorHandler) {
         return clockService.createNewScheduler(errorHandler);
+    }
+
+    /** Closes the service.
+     * @throws Exception */
+    public static void close() throws Exception {
+        clockService.close();
+        clockService = new DummyClockService();
     }
 }
