@@ -80,5 +80,14 @@ public interface ClockService extends AutoCloseable {
      * Creates a new Scheduler, for executing Runnable tasks.
      * @param errorHandler can be null.
      */
-    Scheduler createNewScheduler(final Handler errorHandler);
+    Scheduler newScheduler(final Handler errorHandler);
+
+    /**
+     * Creates a new LogicalScheduler, for executing Runnable tasks.
+     * @param errorHandler can be null.
+     * @param cycleDuration duration of the logical cycle.
+     * @param fixedRate Should the cycle be fixed-rate, or fixed-period?
+     */
+    LogicalScheduler newLogicalScheduler(final Handler errorHandler,
+            final long cycleDuration, final boolean fixedRate);
 }

@@ -108,8 +108,15 @@ public class Clock {
         }
 
         @Override
-        public Scheduler createNewScheduler(final Handler errorHandler) {
-            return waitForStart().createNewScheduler(errorHandler);
+        public Scheduler newScheduler(final Handler errorHandler) {
+            return waitForStart().newScheduler(errorHandler);
+        }
+
+        @Override
+        public LogicalScheduler newLogicalScheduler(final Handler errorHandler,
+                final long cycleDuration, final boolean fixedRate) {
+            return waitForStart().newLogicalScheduler(errorHandler,
+                    cycleDuration, fixedRate);
         }
 
         @Override
@@ -216,8 +223,20 @@ public class Clock {
     }
 
     /** Creates a new Scheduler, using the given Error Handler. */
-    public static Scheduler createNewScheduler(final Handler errorHandler) {
-        return clockService.createNewScheduler(errorHandler);
+    public static Scheduler newScheduler(final Handler errorHandler) {
+        return clockService.newScheduler(errorHandler);
+    }
+
+    /**
+     * Creates a new LogicalScheduler, for executing Runnable tasks.
+     * @param errorHandler can be null.
+     * @param cycleDuration duration of the logical cycle.
+     * @param fixedRate Should the cycle be fixed-rate, or fixed-period?
+     */
+    public LogicalScheduler newLogicalScheduler(final Handler errorHandler,
+            final long cycleDuration, final boolean fixedRate) {
+        return clockService.newLogicalScheduler(errorHandler, cycleDuration,
+                fixedRate);
     }
 
     /** Closes the service.

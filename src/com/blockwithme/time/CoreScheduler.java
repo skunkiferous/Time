@@ -32,15 +32,15 @@ public interface CoreScheduler extends AutoCloseable {
     void close() throws Exception;
 
     /** @see scheduleAtFixedRate(TimerTask,long,long) */
-    Task scheduleAtFixedRateNS(final Runnable task, final Handler errorHandler,
-            final long delayNS, final long periodNS);
+    Task<Runnable> scheduleAtFixedRateNS(final Runnable task,
+            final Handler errorHandler, final long delayNS, final long periodNS);
 
     /** @see scheduleAtFixedPeriod(TimerTask,long,long) */
-    Task scheduleAtFixedPeriodNS(final Runnable task,
+    Task<Runnable> scheduleAtFixedPeriodNS(final Runnable task,
             final Handler errorHandler, final long delayNS, final long periodNS);
 
     /** @see schedule(TimerTask,long) */
-    Task scheduleNS(final Runnable task, final Handler errorHandler,
+    Task<Runnable> scheduleNS(final Runnable task, final Handler errorHandler,
             final long delayNS);
 
 }

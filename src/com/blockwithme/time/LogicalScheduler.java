@@ -16,15 +16,18 @@
 package com.blockwithme.time;
 
 /**
- * Represents a Scheduler task.
- *
- * Call close() to cancel the task (if still possible).
+ * The LogicalScheduler is a Scheduler that can also schedule tasks based on
+ * the logical application time.
  *
  * @author monster
- *
  */
-public interface Task<T> extends AutoCloseable {
+public interface LogicalScheduler extends Scheduler, LogicalTimeSource {
 
-    /** Returns the original task object. */
-    T task();
+    /** Schedules a task to be executed in delay cycles. */
+    Task<LogicalTimeListener> schedule(final LogicalTimeListener task,
+            final long delay);
+
+    /** Schedules a task to be executed every period cycles, starting in delay cycles. */
+    Task<LogicalTimeListener> scheduleAtFixedRate(
+            final LogicalTimeListener task, final long delay, final long period);
 }

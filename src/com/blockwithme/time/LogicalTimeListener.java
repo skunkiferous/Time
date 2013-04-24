@@ -16,15 +16,11 @@
 package com.blockwithme.time;
 
 /**
- * Represents a Scheduler task.
- *
- * Call close() to cancel the task (if still possible).
+ * A task dependent on the logical application time.
  *
  * @author monster
- *
  */
-public interface Task<T> extends AutoCloseable {
-
-    /** Returns the original task object. */
-    T task();
+public interface LogicalTimeListener {
+    /** Called when the logical time changes. */
+    void onTimeChange(long before, long after);
 }
