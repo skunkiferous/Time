@@ -51,6 +51,12 @@ public interface Scheduler extends AutoCloseable {
         void onError(final Runnable task, final Throwable error);
     }
 
+    /** One second, in milli-seconds. */
+    long SECOND_MS = 1000L;
+
+    /** One second, in nano-seconds. */
+    long SECOND_NS = SECOND_MS * 1000000L;
+
     /** One minute, in milli-seconds. */
     long MINUTE_MS = 60L * 1000L;
 
@@ -68,6 +74,15 @@ public interface Scheduler extends AutoCloseable {
 
     /** One day, in nano-seconds. */
     long DAY_NS = DAY_MS * 1000000L;
+
+    /** The number of clock ticks per second. */
+    int TICKS_PER_SECOND = 60;
+
+    /** The duration of a clock tick in nanoseconds. */
+    long TICK_IN_NS = 1000000000L / TICKS_PER_SECOND;
+
+    /** Returns the ClockService that created this Scheduler. */
+    ClockService clockService();
 
     /** @see java.util.Timer.cancel() */
     @Override
@@ -189,4 +204,7 @@ public interface Scheduler extends AutoCloseable {
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,long,long) */
     Task<Runnable> scheduleAtFixedRateNS(Runnable task, final long delayNS,
             final long periodNS);
+
+    /** Register a Runnable, which is called at every clock tick. */
+    Task<Runnable> scheduleTicker(final Runnable task);
 }

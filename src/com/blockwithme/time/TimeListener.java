@@ -20,7 +20,7 @@ package com.blockwithme.time;
  *
  * @author monster
  */
-public interface LogicalTimeListener {
+public interface TimeListener {
     /** Called when the logical time changes. */
-    void onTimeChange(long before, long after);
+    void onTimeChange(Time time);
 }

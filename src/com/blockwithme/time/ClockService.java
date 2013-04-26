@@ -38,12 +38,6 @@ public interface ClockService extends AutoCloseable {
     /** Returns the current *UTC* time, in nanoseconds. */
     long currentTimeNanos();
 
-    /** Returns the start *UTC* time, in nanoseconds, when the service was created. */
-    long startTimeNanos();
-
-    /** Returns the elapsed time, in nanoseconds, since the service was created. */
-    long elapsedTimeNanos();
-
     /** Returns a new Date, using the current *UTC* time. */
     Date date();
 
@@ -77,17 +71,18 @@ public interface ClockService extends AutoCloseable {
     Clock localClock();
 
     /**
+     * Sleeps (approximately) for the given amount of nanoseconds.
+     * The precision should be much better then Thread.sleep(), but we do
+     * a busy-wait using yield in the last 2 milliseconds, which
+     * consumes more CPU then a normal sleep.
+     *
+     * @throws InterruptedException
+     */
+    void sleepNanos(final long sleepNanos) throws InterruptedException;
+
+    /**
      * Creates a new Scheduler, for executing Runnable tasks.
      * @param errorHandler can be null.
      */
     Scheduler newScheduler(final Handler errorHandler);
-
-    /**
-     * Creates a new LogicalScheduler, for executing Runnable tasks.
-     * @param errorHandler can be null.
-     * @param cycleDuration duration of the logical cycle.
-     * @param fixedRate Should the cycle be fixed-rate, or fixed-period?
-     */
-    LogicalScheduler newLogicalScheduler(final Handler errorHandler,
-            final long cycleDuration, final boolean fixedRate);
 }

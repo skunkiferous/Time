@@ -26,7 +26,6 @@ import com.blockwithme.time.Scheduler.Handler;
  * @author monster
  */
 public interface CoreScheduler extends AutoCloseable {
-
     /** @see java.util.Timer.cancel() */
     @Override
     void close() throws Exception;
@@ -43,4 +42,7 @@ public interface CoreScheduler extends AutoCloseable {
     Task<Runnable> scheduleNS(final Runnable task, final Handler errorHandler,
             final long delayNS);
 
+    /** Register a Runnable, which is called at every clock tick. */
+    Task<Runnable> scheduleTicker(final Runnable task,
+            final Handler errorHandler);
 }

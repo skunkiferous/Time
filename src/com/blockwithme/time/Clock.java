@@ -18,8 +18,6 @@ package com.blockwithme.time;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -28,105 +26,15 @@ import com.blockwithme.time.Scheduler.Handler;
 /**
  * Gives static access to the ClockService.
  *
- * All the delegating methods will throw a InternalError, if the
+ * All the delegating methods will throw a NullPointerException, if the
  * ClockService has not been set yet.
  *
  * @author monster
  */
 public class Clock {
 
-    /** Dummy ClockService implementation, to be used until initialized. */
-    private static final class DummyClockService implements ClockService {
-
-        /** How long to wait before failing? */
-        private static final long WAIT_FOR_REAL_SERVICE = 3000;
-
-        /** Blocks the callers, instead of failing immediately. */
-        private final CountDownLatch startSignal = new CountDownLatch(1);
-
-        private ClockService waitForStart() {
-            try {
-                startSignal.await(WAIT_FOR_REAL_SERVICE, TimeUnit.MILLISECONDS);
-            } catch (final InterruptedException e) {
-                // NOP
-            }
-            final ClockService result = Clock.getClockService();
-            if (result != null) {
-                return result;
-            }
-            throw new InternalError("ClockService not initialized!");
-        }
-
-        @Override
-        public long currentTimeMillis() {
-            return waitForStart().currentTimeMillis();
-        }
-
-        @Override
-        public long currentTimeNanos() {
-            return waitForStart().currentTimeNanos();
-        }
-
-        @Override
-        public long startTimeNanos() {
-            return waitForStart().startTimeNanos();
-        }
-
-        @Override
-        public long elapsedTimeNanos() {
-            return waitForStart().elapsedTimeNanos();
-        }
-
-        @Override
-        public Date date() {
-            return waitForStart().date();
-        }
-
-        @Override
-        public Calendar calendar() {
-            return waitForStart().calendar();
-        }
-
-        @Override
-        public org.threeten.bp.Clock clock() {
-            return waitForStart().clock();
-        }
-
-        @Override
-        public TimeZone localTimeZone() {
-            return waitForStart().localTimeZone();
-        }
-
-        @Override
-        public Calendar localCalendar() {
-            return waitForStart().localCalendar();
-        }
-
-        @Override
-        public org.threeten.bp.Clock localClock() {
-            return waitForStart().localClock();
-        }
-
-        @Override
-        public Scheduler newScheduler(final Handler errorHandler) {
-            return waitForStart().newScheduler(errorHandler);
-        }
-
-        @Override
-        public LogicalScheduler newLogicalScheduler(final Handler errorHandler,
-                final long cycleDuration, final boolean fixedRate) {
-            return waitForStart().newLogicalScheduler(errorHandler,
-                    cycleDuration, fixedRate);
-        }
-
-        @Override
-        public void close() throws Exception {
-            waitForStart().close();
-        }
-    }
-
     /** The ClockService instance. */
-    private static volatile ClockService clockService = new DummyClockService();
+    private static volatile ClockService clockService;
 
     /**
      * Cannot be instantiated.
@@ -138,24 +46,12 @@ public class Clock {
     /** Sets the ClockService. */
     @Inject
     public static void setClockService(final ClockService newClockService) {
-        if (newClockService == null) {
-            throw new IllegalArgumentException("newClockService is null");
-        }
-        final ClockService old = clockService;
         clockService = newClockService;
-        if (old instanceof DummyClockService) {
-            final DummyClockService dummy = (DummyClockService) old;
-            dummy.startSignal.countDown();
-        }
     }
 
     /** Returns the ClockService. */
     public static ClockService getClockService() {
-        ClockService result = clockService;
-        if (result instanceof DummyClockService) {
-            result = null;
-        }
-        return result;
+        return clockService;
     }
 
     /** Returns the current *UTC* time, in milliseconds. */
@@ -166,16 +62,6 @@ public class Clock {
     /** Returns the current *UTC* time, in nanoseconds. */
     public static long currentTimeNanos() {
         return clockService.currentTimeNanos();
-    }
-
-    /** Returns the start *UTC* time, in nanoseconds, when the service was created. */
-    public static long startTimeNanos() {
-        return clockService.startTimeNanos();
-    }
-
-    /** Returns the elapsed time, in nanoseconds, since the service was created. */
-    public static long elapsedTimeNanos() {
-        return clockService.elapsedTimeNanos();
     }
 
     /** Returns a new Date, using the current *UTC* time. */
@@ -227,22 +113,13 @@ public class Clock {
         return clockService.newScheduler(errorHandler);
     }
 
-    /**
-     * Creates a new LogicalScheduler, for executing Runnable tasks.
-     * @param errorHandler can be null.
-     * @param cycleDuration duration of the logical cycle.
-     * @param fixedRate Should the cycle be fixed-rate, or fixed-period?
-     */
-    public LogicalScheduler newLogicalScheduler(final Handler errorHandler,
-            final long cycleDuration, final boolean fixedRate) {
-        return clockService.newLogicalScheduler(errorHandler, cycleDuration,
-                fixedRate);
-    }
-
     /** Closes the service.
      * @throws Exception */
     public static void close() throws Exception {
-        clockService.close();
-        clockService = new DummyClockService();
+        final ClockService service = clockService;
+        if (service != null) {
+            service.close();
+            clockService = null;
+        }
     }
 }
