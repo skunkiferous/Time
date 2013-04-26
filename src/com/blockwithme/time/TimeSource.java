@@ -65,4 +65,7 @@ public interface TimeSource extends AutoCloseable {
 
     /** Register a TimeListener, which is called at every clock tick. */
     Task<TimeListener> registerListener(final TimeListener listener);
+
+    /** Creates and returns a new derived TimeSource. */
+    TimeSource createTimeSource();
 }

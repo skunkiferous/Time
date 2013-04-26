@@ -207,4 +207,7 @@ public interface Scheduler extends AutoCloseable {
 
     /** Register a Runnable, which is called at every clock tick. */
     Task<Runnable> scheduleTicker(final Runnable task);
+
+    /** Creates and returns a new direct TimeSource. */
+    TimeSource createTimeSource();
 }
