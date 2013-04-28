@@ -26,6 +26,10 @@ import com.blockwithme.time.Scheduler.Handler;
  * @author monster
  */
 public interface CoreScheduler extends AutoCloseable {
+
+    /** Sets the ClockService. Can only be called once. */
+    void setClockService(final ClockService clockService);
+
     /** @see java.util.Timer.cancel() */
     @Override
     void close() throws Exception;

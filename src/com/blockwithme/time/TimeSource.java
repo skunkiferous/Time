@@ -21,7 +21,44 @@ package com.blockwithme.time;
  * The logical time is represented as a long, and it usually moves
  * forward, but does not need to keep in sync with the real time. Also, it is
  * conceivable that not all parts of the application are at the same logical
- * time, within the same real-time moment.
+ * time, within the same real-time moment. In particular, the real time always
+ * moves forward, but the logical time can be paused, and therefore should
+ * normally be the source of all time-related decisions within an application.
+ *
+ * Time sources are lightweight objects; they do not require their own thread.
+ * As such, it is expected that an application could have many of them. Each
+ * time source , except the "core time sources" (which are bound to the core
+ * scheduler frequency), builds on the frequency of it's parent, and can either
+ * keep the same frequency, or go slower. Therefore, time sources for a
+ * hierarchy. By changing the clock divider, or the paused state, of a time
+ * source, you also affect all the children time sources.
+ *
+ * Clock "ticks" just represent a position in a timeline. They do not have an
+ * intrinsic meaning. That is because the origin value, 0, is totally arbitrary,
+ * and does not need to be related to anything. So we can leave it to 0 at the
+ * creation of the time source, and it can be updated to any desired value.
+ * Secondly, the tick period/frequency is also arbitrary, but somewhat less
+ * arbitrary, since it the tick period must be a multiple of the core scheduler
+ * tick period, which defaults (currently) to 60. While 60 ticks per seconds is
+ * too much for most simulations, the ideal speed varies between use-cases,
+ * with 10, 20 and 30 being usual frequencies. To allow all those frequencies
+ * to be supported, we need a speed which is a multiple of all those speeds. 15
+ * and 12 are also possible frequencies, but are less "popular". To put those
+ * numbers in perspective, "traditional" cinema uses 24 frames per second, but
+ * this is rarely used in computer software. It is also beneficial when the
+ * display frame rate is a multiple of the simulation frame rate. Since many
+ * modern display are LCD today, with a typical, as of this writing, refresh
+ * rate of 60 Hrz, we can use 10, 12, 15, 20 or 30 and match the refresh rate.
+ * Many AAA games run at 30 cycles per second, but this might be too much for
+ * a "lower budget" game.
+ *
+ * The "tick count" could for example measure the time since the start of a
+ * level, or the start of the whole game. But the most likely usage of a
+ * derived time source, is to allow the implementation of cinematics. That is
+ * to represent the progression along the timeline of some some action, like
+ * swinging a sword. In that case, the tick count will probably be reset to 0
+ * at the start of the scene, and the displayed frames matched to that tick
+ * count.
  *
  * @author monster
  */
@@ -75,10 +112,10 @@ public interface TimeSource extends AutoCloseable, ClockServiceSource,
      * one tick of this clock passes. If this clock goes in the opposite
      * direction as the parent clock, it will be negative, but can never be 0.
      */
-    int parentRatio();
+    int clockDivider();
 
     /** Sets the parent ratio. */
-    void setParentRatio(int ratio);
+    void setClockDivider(int divider);
 
     /** Returns the *last* clock tick, if any. */
     Time lastTick();
@@ -92,17 +129,4 @@ public interface TimeSource extends AutoCloseable, ClockServiceSource,
      * in the global tick period.
      */
     Task<TimeListener> registerListener(final TimeListener listener);
-
-    /**
-     * Creates and returns a new derived TimeSource.
-     *
-     * A derived time source is useful, to create a time source with a smaller
-     * speed (larger period) then the parent time source. A derived time source
-     * can also go in the opposite direction as the parent, or be paused
-     * individually. But it is also paused when the parent is paused.
-     *
-     * @param name cannot be null or empty
-     */
-    @Override
-    TimeSource newTimeSource(String name);
 }

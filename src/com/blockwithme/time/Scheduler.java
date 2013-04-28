@@ -73,15 +73,6 @@ public interface Scheduler extends AutoCloseable, ClockServiceSource,
      */
     Task<Runnable> scheduleTicker(final Runnable task);
 
-    /**
-     * Creates and returns a new direct/core TimeSource, running at the period
-     * specified in the ClokcService.
-     *
-     * @param name cannot be null or empty
-     */
-    @Override
-    TimeSource newTimeSource(final String name);
-
     ///////////////////////////////////////////////////////////////////////
     // The rest of the methods are similar to what is in java.util.Timer //
     ///////////////////////////////////////////////////////////////////////

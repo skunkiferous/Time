@@ -16,7 +16,7 @@
 package com.blockwithme.time;
 
 /**
- * A TimeSourceCreator crates a new TimeSource.
+ * A TimeSourceCreator creates new TimeSources.
  *
  * @author monster
  */
@@ -25,11 +25,20 @@ public interface TimeSourceCreator {
     /**
      * Creates and returns a new TimeSource.
      *
-     * Depending on the implementation, it might be a core TimeSource or a
-     * derived time source.
+     * Depending on the implementation, it might be a core TimeSource, bound to
+     * the core scheduler tick frequency, or a derived time source, bound to
+     * the frequency of the parent time source.
      *
-     * @param name cannot be null or empty
+     * A derived time source is useful, to create a time source with a smaller
+     * frequency (larger period) then the parent time source. A derived time
+     * source can also go in the opposite direction as the parent, or be paused
+     * individually. But it is also paused when the parent is paused.
+     *
+     * @param name cannot be null or empty. Used for debugging; ideally unique.
+     * @param pausedAtStart defines if the TimeSource will be created in paused, or running, state.
+     * @param inheritTickCount defines, if the TimeSource should have the same ticks as the parent, or be reset to 0.
      */
-    TimeSource newTimeSource(String name);
+    TimeSource newTimeSource(String name, boolean pausedAtStart,
+            boolean inheritTickCount);
 
 }
