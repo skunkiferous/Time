@@ -30,15 +30,15 @@ public interface CoreScheduler extends AutoCloseable {
     @Override
     void close() throws Exception;
 
-    /** @see scheduleAtFixedRate(TimerTask,long,long) */
+    /** @see java.util.Timer.scheduleAtFixedRat(TimerTask,long,long) */
     Task<Runnable> scheduleAtFixedRateNS(final Runnable task,
             final Handler errorHandler, final long delayNS, final long periodNS);
 
-    /** @see scheduleAtFixedPeriod(TimerTask,long,long) */
+    /** @see java.util.Timer.schedule(TimerTask,long,long) */
     Task<Runnable> scheduleAtFixedPeriodNS(final Runnable task,
             final Handler errorHandler, final long delayNS, final long periodNS);
 
-    /** @see schedule(TimerTask,long) */
+    /** @see java.util.Timer.schedule(TimerTask,long) */
     Task<Runnable> scheduleNS(final Runnable task, final Handler errorHandler,
             final long delayNS);
 

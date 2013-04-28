@@ -29,9 +29,11 @@ import com.blockwithme.time.Scheduler.Handler;
  * All the delegating methods will throw a NullPointerException, if the
  * ClockService has not been set yet.
  *
+ * This class is useful, when working outside of the context of OSGi and Guice.
+ *
  * @author monster
  */
-public class Clock {
+public class CS {
 
     /** The ClockService instance. */
     private static volatile ClockService clockService;
@@ -39,7 +41,7 @@ public class Clock {
     /**
      * Cannot be instantiated.
      */
-    private Clock() {
+    private CS() {
         // NOP
     }
 
@@ -108,9 +110,13 @@ public class Clock {
         return clockService.localCalendar();
     }
 
-    /** Creates a new Scheduler, using the given Error Handler. */
-    public static Scheduler newScheduler(final Handler errorHandler) {
-        return clockService.newScheduler(errorHandler);
+    /**
+     * Creates a new Scheduler, using the given Error Handler.
+     * @param name cannot be null or empty
+     */
+    public static Scheduler newScheduler(final String name,
+            final Handler errorHandler) {
+        return clockService.newScheduler(name, errorHandler);
     }
 
     /** Closes the service.

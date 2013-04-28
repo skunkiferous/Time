@@ -32,16 +32,16 @@ import com.blockwithme.time.Scheduler.Handler;
  */
 public interface ClockService extends AutoCloseable {
 
-    /** Returns the current *UTC* time, in milliseconds. */
+    /** Returns the current time, in milliseconds. */
     long currentTimeMillis();
 
-    /** Returns the current *UTC* time, in nanoseconds. */
+    /** Returns the current time, in nanoseconds. */
     long currentTimeNanos();
 
-    /** Returns a new Date, using the current *UTC* time. */
+    /** Returns a new Date, using currentTimeMillis(). */
     Date date();
 
-    /** Returns a new Calendar, using the current *UTC* time. */
+    /** Returns a new Calendar, using currentTimeMillis(). */
     Calendar calendar();
 
     /**
@@ -54,7 +54,11 @@ public interface ClockService extends AutoCloseable {
      */
     Clock clock();
 
-    /** The original default local time zone. */
+    /**
+     * The original default local time zone. This is useful, for the case where
+     * we set the local time zone to GMT, which might be required to get
+     * third-party APIs to use UTC/GMT as default.
+     */
     TimeZone localTimeZone();
 
     /** Returns a new Calendar, using the current *local* time. */
@@ -72,17 +76,30 @@ public interface ClockService extends AutoCloseable {
 
     /**
      * Sleeps (approximately) for the given amount of nanoseconds.
-     * The precision should be much better then Thread.sleep(), but we do
-     * a busy-wait using yield in the last 2 milliseconds, which
-     * consumes more CPU then a normal sleep.
+     *
+     * The precision should be much better then Thread.sleep(), but consumes
+     * more CPU then a normal sleep. Thread.sleep(long) should still be
+     * preferred for long sleeps, that do not need to be precise.
+     *
+     * Note that *in most implementations* of the JDK, Thread.sleep(long,int)
+     * does *not* give you precise sleep, as the amount of nanosecond is just
+     * rounded to the nearest millisecond!
      *
      * @throws InterruptedException
      */
     void sleepNanos(final long sleepNanos) throws InterruptedException;
 
+    /** Returns the number of clock ticks per second. */
+    int ticksPerSecond();
+
+    /** Returns the duration of a clock tick in nanoseconds. */
+    long tickDurationNanos();
+
     /**
      * Creates a new Scheduler, for executing Runnable tasks.
+     *
+     * @param name cannot be null or empty
      * @param errorHandler can be null.
      */
-    Scheduler newScheduler(final Handler errorHandler);
+    Scheduler newScheduler(final String name, final Handler errorHandler);
 }

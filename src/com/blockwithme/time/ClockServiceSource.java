@@ -16,15 +16,13 @@
 package com.blockwithme.time;
 
 /**
- * A task dependent on the logical application time.
- *
- * The time listener must *never* do long running, or blocking, operations!
- * This would delay all the other time listeners, and cause fluctuation
- * in the global tick period.
+ * A ClockServiceSource holds a reference to a ClockService.
  *
  * @author monster
  */
-public interface TimeListener {
-    /** Called when the logical time changes. */
-    void onTimeChange(Time time);
+public interface ClockServiceSource {
+
+    /** Returns the ClockService. */
+    ClockService clockService();
+
 }

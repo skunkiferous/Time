@@ -16,7 +16,7 @@
 package com.blockwithme.time;
 
 /**
- * The clock synchronizer class is used to find the difference between the current
+ * The clock synchronizers are used to find the difference between the current
  * system clock, and some (relatively) reliable, external source (normally some
  * Internet server). It is used to allow the ClockService to return approximately
  * correct time values, despite large errors in the settings of the local
@@ -25,11 +25,17 @@ package com.blockwithme.time;
  * ClockSynchronizers are provided by the default API implementation, and do
  * not normally need to be implemented by API users.
  *
+ * If a clock service is created without clock synchronizers, it will be forced
+ * to use the (possibly inaccurate)  time of the local host.
+ *
  * @author monster
  */
 public interface ClockSynchronizer {
 
-    /** Returns the expected precision, in milliseconds. */
+    /**
+     * Returns the expected precision, in milliseconds.
+     * It is only used for "sorting purpose*.
+     */
     long expectedPrecision();
 
     /**

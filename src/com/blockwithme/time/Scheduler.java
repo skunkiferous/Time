@@ -26,24 +26,26 @@ import org.threeten.bp.ZonedDateTime;
  * The scheduler allows running "tasks" in the future, and optionally specify
  * that those tasks should be repeated at regular intervals.
  *
- * The meaning of the methods is the same as those of java.util.Timer.
+ * The meaning of the methods is the same as the equivalent methods of
+ * java.util.Timer.
  *
- * The points in time are based on Clock.currentTimeMillis(), rather then
+ * The points in time are based on ClockService.currentTimeMillis(), rather then
  * System.currentTimeMillis(), to deal with inaccurate local clocks.
  * (With the exception of ZonedDateTime, which contains it's own timezone
  * specification.)
  *
  * We also accept nano-seconds values for convenience, in the methods suffixed
- * with "NS".
+ * with "NS", but *currently* do not offer sub-millisecond precision.
  *
  * The scheduler instances are lightweight, which mean they do not get their
  * own thread, and so can be cheaply created and destroyed. OTOH, it means that
- * tasks should never block or take a long time to perform, as this will block
+ * *tasks should never block or take a long time* to perform, as this will block
  * all other scheduled tasks.
  *
  * @author monster
  */
-public interface Scheduler extends AutoCloseable {
+public interface Scheduler extends AutoCloseable, ClockServiceSource,
+        TimeSourceCreator {
 
     /** Exception handler. */
     interface Handler {
@@ -51,42 +53,38 @@ public interface Scheduler extends AutoCloseable {
         void onError(final Runnable task, final Throwable error);
     }
 
-    /** One second, in milli-seconds. */
-    long SECOND_MS = 1000L;
+    /** Returns the name of the scheduler. */
+    String name();
 
-    /** One second, in nano-seconds. */
-    long SECOND_NS = SECOND_MS * 1000000L;
-
-    /** One minute, in milli-seconds. */
-    long MINUTE_MS = 60L * 1000L;
-
-    /** One minute, in nano-seconds. */
-    long MINUTE_NS = MINUTE_MS * 1000000L;
-
-    /** One hour, in milli-seconds. */
-    long HOUR_MS = 60L * MINUTE_MS;
-
-    /** One hour, in nano-seconds. */
-    long HOUR_NS = HOUR_MS * 1000000L;
-
-    /** One day, in milli-seconds. */
-    long DAY_MS = 24L * HOUR_MS;
-
-    /** One day, in nano-seconds. */
-    long DAY_NS = DAY_MS * 1000000L;
-
-    /** The number of clock ticks per second. */
-    int TICKS_PER_SECOND = 60;
-
-    /** The duration of a clock tick in nanoseconds. */
-    long TICK_IN_NS = 1000000000L / TICKS_PER_SECOND;
-
-    /** Returns the ClockService that created this Scheduler. */
-    ClockService clockService();
-
-    /** @see java.util.Timer.cancel() */
+    /**
+     * Closes the scheduler.
+     * @see java.util.Timer.cancel()
+     */
     @Override
     void close() throws Exception;
+
+    /**
+     * Register a Runnable, which is called at every clock tick.
+     * The period of the clock tick is a constant fixed in the ClockService.
+     *
+     * The Runnable must *never* do long running, or blocking, operations!
+     * This would delay all the other Runnables, and cause fluctuation
+     * in the global tick period.
+     */
+    Task<Runnable> scheduleTicker(final Runnable task);
+
+    /**
+     * Creates and returns a new direct/core TimeSource, running at the period
+     * specified in the ClokcService.
+     *
+     * @param name cannot be null or empty
+     */
+    @Override
+    TimeSource newTimeSource(final String name);
+
+    ///////////////////////////////////////////////////////////////////////
+    // The rest of the methods are similar to what is in java.util.Timer //
+    ///////////////////////////////////////////////////////////////////////
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date) */
     Task<Runnable> scheduleOnce(Runnable task, final Date timeUTC);
@@ -204,10 +202,4 @@ public interface Scheduler extends AutoCloseable {
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,long,long) */
     Task<Runnable> scheduleAtFixedRateNS(Runnable task, final long delayNS,
             final long periodNS);
-
-    /** Register a Runnable, which is called at every clock tick. */
-    Task<Runnable> scheduleTicker(final Runnable task);
-
-    /** Creates and returns a new direct TimeSource. */
-    TimeSource createTimeSource();
 }
