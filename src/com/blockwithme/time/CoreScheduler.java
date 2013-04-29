@@ -27,6 +27,9 @@ import com.blockwithme.time.Scheduler.Handler;
  */
 public interface CoreScheduler extends AutoCloseable {
 
+    /** Returns the number of clock ticks per second. */
+    int ticksPerSecond();
+
     /** Sets the ClockService. Can only be called once. */
     void setClockService(final ClockService clockService);
 

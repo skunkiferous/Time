@@ -60,7 +60,7 @@ public class Time implements Comparable<Time>, ClockServiceSource {
     public static final long DAY_NS = DAY_MS * MILLI_NS;
 
     /** The source of this time instance. */
-    public final TimeSource source;
+    public final Timeline source;
 
     /**
      * The last tick, if any. Will be cleared, when this instance becomes the
@@ -114,7 +114,7 @@ public class Time implements Comparable<Time>, ClockServiceSource {
     private Instant tickTimeInstant;
 
     /** Creates a Time instance. */
-    public Time(final TimeSource theSource, final long now,
+    public Time(final Timeline theSource, final long now,
             final Time theLastTick, final long theTicks,
             final long thePausedTicks, final long thePausedTime) {
         source = Objects.requireNonNull(theSource, "theSource");
@@ -181,7 +181,7 @@ public class Time implements Comparable<Time>, ClockServiceSource {
         return (other == null) ? 1 : Long.compare(tickTime, other.tickTime);
     }
 
-    /** Returns the ClockService of the originating time source. */
+    /** Returns the ClockService of the originating timeline. */
     @Override
     public final ClockService clockService() {
         return source.clockService();

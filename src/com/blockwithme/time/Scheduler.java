@@ -45,7 +45,7 @@ import org.threeten.bp.ZonedDateTime;
  * @author monster
  */
 public interface Scheduler extends AutoCloseable, ClockServiceSource,
-        TimeSourceCreator {
+        TimelineCreator {
 
     /** Exception handler. */
     interface Handler {
