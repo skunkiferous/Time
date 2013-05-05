@@ -68,69 +68,81 @@ public class Time implements Comparable<Time>, ClockServiceSource {
      */
     public volatile Time lastTick;
 
-    /** Time of this tick, in nanoseconds. */
-    public final long tickTime;
+    /** The time, in nanoseconds, at which this Time instance was created. */
+    public final long creationTime;
+
+    /** The time, in seconds, at which this Time instance was created. */
+    public final double creationTimeSec;
 
     /** Nanoseconds elapsed, since last tick. */
     public final long tickDuration;
 
-    /** Current ticks count. */
+    /** Seconds elapsed, since last tick. */
+    public final double tickDurationSec;
+
+    /**
+     * Returns the total nano-time spent in running state, since this timeline
+     * was created. This could also be called the relative, or elapsed, time.
+     * It will be reset to 0, after a reset() or "loop".
+     */
+    public final long runningElapsedTime;
+
+    /**
+     * Returns the total time in seconds spent in running state, since this
+     * timeline was created. This could also be called the relative, or
+     * elapsed, time. It will be reset to 0, after a reset() or "loop".
+     */
+    public final double runningElapsedTimeSec;
+
+    /**
+     * The total ticks spent in running state, since this timeline was created.
+     * It will be reset to 0, after a reset() or "loop".
+     */
+    public final long runningElapsedTicks;
+
+    /**
+     * If fixedDurationTicks() is not 0, then we can compute how far we got
+     * along this timeline, and return it as a fraction, within [0,1].
+     * Returns -1 if fixedDurationTicks() is 0.
+     */
+    public final double progress;
+
+    /**
+     * Returns the "time" of this timeline. This is the value that most parts
+     * of the application are interested in. It's meaning is arbitrary. It is
+     * obtained by: (timeOffset() + globalTickScaling() * runningElapsedTicks()).
+     * Being a double, it is not as precise as a long would be, but this is
+     * required, to allow any kind of scaling.
+     */
+    public final double time;
+
+    /** Number of core ticks, since source creation. */
     public final long ticks;
-
-    /** Elapsed ticks, since last tick (can be negative!). */
-    public final long tickStep;
-
-    /** The beginning of this second, in nanoseconds. */
-    public final long secondStart;
-
-    /** The elapsed time in nanoseconds, since the start of this second. */
-    public final int secondRest;
-
-    /** The elapsed time as a fraction, since the start of this second. */
-    public final double secondFraction;
-
-    /**
-     * The elapsed time, in nanoseconds, since the clock was created, including
-     * pauses.
-     */
-    public final long elapsedTime;
-
-    /**
-     * The elapsed time, in nanoseconds, since the clock was created, excluding
-     * pauses.
-     */
-    public final long elapsedUnpausedTime;
-
-    /** Was the clock paused, between this and the previous tick? By how much ticks? */
-    public final long pausedTicks;
-
-    /** Was the clock paused, between this and the previous tick? By how much nanos? */
-    public final long pausedTime;
-
-    /** toString */
-    private String toString;
 
     /** Time of this tick, in nanoseconds, as an Instant. */
     private Instant tickTimeInstant;
 
+    /** toString */
+    private String toString;
+
     /** Creates a Time instance. */
-    public Time(final Timeline theSource, final long now,
-            final Time theLastTick, final long theTicks,
-            final long thePausedTicks, final long thePausedTime) {
+    public Time(final Timeline theSource, final long theTicks,
+            final long timeNanos, final long theRunningElapsedTime,
+            final double theProgress, final double theTime,
+            final long theRunningElapsedTicks, final Time theLastTick) {
         source = Objects.requireNonNull(theSource, "theSource");
-        tickTime = now;
         lastTick = theLastTick;
-        tickDuration = tickTime - ((lastTick == null) ? 0 : lastTick.tickTime);
+        runningElapsedTime = theRunningElapsedTime;
+        runningElapsedTimeSec = ((double) runningElapsedTime) / Time.SECOND_NS;
+        progress = theProgress;
+        time = theTime;
+        creationTime = timeNanos;
         ticks = theTicks;
-        tickStep = ticks - ((lastTick == null) ? 0 : lastTick.ticks);
-        secondStart = (now / SECOND_NS) * SECOND_NS;
-        secondRest = (int) (now - secondStart);
-        secondFraction = ((double) secondRest) / SECOND_NS;
-        final long startTime = source.startTime();
-        elapsedTime = now - startTime;
-        elapsedUnpausedTime = elapsedTime - source.pausedTime();
-        pausedTicks = thePausedTicks;
-        pausedTime = thePausedTime;
+        tickDuration = runningElapsedTime
+                - ((lastTick == null) ? 0 : lastTick.runningElapsedTime);
+        tickDurationSec = ((double) tickDuration) / Time.SECOND_NS;
+        creationTimeSec = ((double) creationTime) / Time.SECOND_NS;
+        runningElapsedTicks = theRunningElapsedTicks;
     }
 
     /** toString() */
@@ -138,18 +150,11 @@ public class Time implements Comparable<Time>, ClockServiceSource {
     public String toString() {
         if (toString == null) {
             final StringBuilder buf = new StringBuilder(256);
-            buf.append("Time(source=").append(source).append(",tickTime=")
-                    .append(tickTime).append(",tickDuration=")
-                    .append(tickDuration).append(",ticks=").append(ticks)
-                    .append(",tickStep=").append(tickStep)
-                    .append(",secondStart=").append(secondStart)
-                    .append(",secondRest=").append(secondRest)
-                    .append(",secondFraction=").append(secondFraction)
-                    .append(",elapsedTime=").append(elapsedTime)
-                    .append(",elapsedUnpausedTime=")
-                    .append(elapsedUnpausedTime).append(",pausedTicks=")
-                    .append(pausedTicks).append(",tickTimeInstant=")
-                    .append(tickTimeInstant()).append(")");
+            buf.append("Time(source=").append(source.name())
+                    .append(",tickDuration=").append(tickDuration)
+                    .append(",runningElapsedTime=").append(runningElapsedTime)
+                    .append(",progress=").append(progress).append(",time=")
+                    .append(time).append(tickTimeInstant()).append(")");
             toString = buf.toString();
         }
         return toString;
@@ -158,14 +163,14 @@ public class Time implements Comparable<Time>, ClockServiceSource {
     /** hashCode() */
     @Override
     public final int hashCode() {
-        return (int) (tickTime ^ (tickTime >>> 32));
+        return (int) (runningElapsedTime ^ (runningElapsedTime >>> 32));
     }
 
     /** equals(Object) */
     @Override
     public final boolean equals(final Object obj) {
         if (obj instanceof Time) {
-            return tickTime == ((Time) obj).tickTime;
+            return runningElapsedTime == ((Time) obj).runningElapsedTime;
         }
         return false;
     }
@@ -178,7 +183,8 @@ public class Time implements Comparable<Time>, ClockServiceSource {
      */
     @Override
     public final int compareTo(final Time other) {
-        return (other == null) ? 1 : Long.compare(tickTime, other.tickTime);
+        return (other == null) ? 1 : Long.compare(runningElapsedTime,
+                other.runningElapsedTime);
     }
 
     /** Returns the ClockService of the originating timeline. */
@@ -190,7 +196,7 @@ public class Time implements Comparable<Time>, ClockServiceSource {
     /** Time of this tick, in nanoseconds, as an Instant. */
     public final Instant tickTimeInstant() {
         if (tickTimeInstant == null) {
-            tickTimeInstant = Instant.ofEpochSecond(0, tickTime);
+            tickTimeInstant = Instant.ofEpochSecond(0, creationTime);
         }
         return tickTimeInstant;
     }

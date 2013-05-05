@@ -95,6 +95,9 @@ public interface ClockService extends AutoCloseable {
     /** Returns the duration of a clock tick in nanoseconds. */
     long tickDurationNanos();
 
+    /** Returns the core timeline. */
+    Timeline coreTimeline();
+
     /**
      * Creates a new Scheduler, for executing Runnable tasks.
      *

@@ -15,103 +15,63 @@
  */
 package com.blockwithme.time;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import org.threeten.bp.Instant;
-
 /**
  * A TimelineBuilder allows the creation of a new Timeline as "child" of an
  * existing Timeline. Timelines are complex enough, that a simple "create"
- * method cannot cover all use-cases. By default, the new timeline has the
- * same values and parameters as the parent timeline.
- *
- * The same TimelineBuilder can only be used once.
+ * method cannot cover all use-cases.
  *
  * @author monster
  */
 public interface TimelineBuilder {
-    /** Create the new timeline, using the currently specified parameters. */
-    Timeline create();
+    /**
+     * Create the new timeline, using the currently specified parameters.
+     * @param name specifies the name of the new Timeline. It cannot be null or empty.
+     */
+    Timeline create(String name);
 
     /** The new Timeline should be created in the paused state. */
-    TimelineBuilder pause();
+    TimelineBuilder paused();
 
     /** The new Timeline should be created in the running state. */
-    TimelineBuilder unpause();
+    TimelineBuilder running();
 
     /**
-     * Sets the ticker count to the desired value.
-     *
-     * This overrides all previous calls to setTickerCount() or
-     * offsetTickerCount().
+     * Sets the nano-time at which this timeline will be started. It should be
+     * in the future. By default, the time when create() is called is used.
+     * Null means use the default behavior.
      */
-    TimelineBuilder setTickerCount(long ticks);
+    TimelineBuilder setStartTimePoint(Long startTimePoint);
+
+    /** Sets the local tick step. */
+    TimelineBuilder setLocalTickStep(double step);
 
     /**
-     * Offsets the ticker count to the desired value.
-     *
-     * This overrides all previous calls to setTickerCount() or
-     * offsetTickerCount().
+     * Specifies if this timeline has it's duration fixed ahead of time. It
+     * should be a number of ticks. 0 can be used to signify no fixed duration.
      */
-    TimelineBuilder offsetTickerCount(long ticksOffset);
+    TimelineBuilder setFixedDurationTicks(long fixedDurationTicks);
 
     /**
-     * Sets the "real-time" to the desired value.
-     *
-     * This overrides all previous calls to setRealTime() or
-     * offsetRealTime().
+     * Specifies, if the timeline has a fixed duration, if it should just end,
+     * or reset itself?
      */
-    TimelineBuilder setRealTime(long realTimeNanos);
+    TimelineBuilder setLoopWhenReachingEnd(boolean loopWhenReachingEnd);
+
+    /** Sets the local scaling applied to runningElapsedTicks(). */
+    TimelineBuilder setLocalTickScaling(double scaling);
+
+    /** Sets the fixed offset added to produce "time()". */
+    TimelineBuilder setTimeOffset(double timeOffset);
 
     /**
-     * Sets the "real-time" to the desired value.
-     *
-     * This overrides all previous calls to setRealTime() or
-     * offsetRealTime().
+     * Adjusts the local tick step, to reach the desired number of ticks per
+     * second. Note that there are limitations. Firstly, it cannot be more then
+     * the core tick frequency. Secondly, it unless is a factor of the core
+     * tick frequency, it will only be *on average* following the desired
+     * number of ticks per second. And finally, this can also be overriden by
+     * the parent, if the parent cahnges it's ow
+     * @param i
+     * @return
      */
-    TimelineBuilder setRealTime(Date realTime);
-
-    /**
-     * Sets the "real-time" to the desired value.
-     *
-     * This overrides all previous calls to setRealTime() or
-     * offsetRealTime().
-     */
-    TimelineBuilder setRealTime(Calendar realTime);
-
-    /**
-     * Sets the "real-time" to the desired value.
-     *
-     * This overrides all previous calls to setRealTime() or
-     * offsetRealTime().
-     */
-    TimelineBuilder setRealTime(Instant realTime);
-
-    /**
-     * Sets the "real-time" to the desired value.
-     *
-     * This overrides all previous calls to setRealTime() or
-     * offsetRealTime().
-     */
-    TimelineBuilder offsetRealTime(long realTimeNanosOffset);
-
-    /**
-     * Sets the clock divider, to the desired value. 0 is not allowed.
-     * A negative value causes the Timeline to go in the opposite direction as it's parent.
-     *
-     * This overrides all previous calls to setClockDivider() or
-     * multiplyClockDivider().
-     */
-    TimelineBuilder setClockDivider(int clockDivider);
-
-    /**
-     * Multiplies the clock divider, by the desired value. 0 is not allowed.
-     * The result will be rounded. Zero will never result from rounding.
-     * A negative value causes the Timeline to go in the opposite direction as it's parent.
-     *
-     * This overrides all previous calls to setClockDivider() or
-     * multiplyClockDivider().
-     */
-    TimelineBuilder multiplyClockDivider(float clockDividerFactor);
+    TimelineBuilder setTicksPerSecond(double ticksPerSecond);
 }

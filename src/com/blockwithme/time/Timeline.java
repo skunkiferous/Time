@@ -35,13 +35,16 @@ package com.blockwithme.time;
  * Timelines are lightweight objects; they do not require their own thread.
  * As such, it is expected that an application could have many of them. Each
  * timeline , except the "core timelines" (which are bound to the core
- * scheduler frequency), builds on the frequency of it's parent, and can either
- * keep the same frequency, or go slower. Therefore, timelines for a
- * hierarchy. By changing the clock divider, or the paused state, of a time
- * source, you also affect all the children timelines.
+ * scheduler tick frequency), builds on the tick frequency of it's parent, and
+ * normally keep the same frequency, or go slower, then the parent. Therefore,
+ * timelines form a hierarchy. By changing the local scaling, or the paused
+ * state, of a timeline, you also affect all the children timelines.
  *
- * Clock "ticks" just represent a position in a timeline. They do not have an
- * intrinsic meaning. That is because the origin value, 0, is totally arbitrary,
+ * Clock "ticks" just represent a position in a timeline. They normally
+ * represent the (approximate) number of "updates" of the listeners. Timing
+ * issues might cause one "update call" to count for multiple updates. Zero is
+ * normally chosen as the start tick count, but could be set to something else.
+ *
  * and does not need to be related to anything. So we can leave it to 0 at the
  * creation of the timeline, and it can be updated to any desired value.
  * Secondly, the tick period/frequency is also arbitrary, but somewhat less
@@ -67,82 +70,234 @@ package com.blockwithme.time;
  * at the start of the scene, and the displayed frames matched to that tick
  * count.
  *
+ * TODO: We need to map between timelines: time-points, intervals, and durations.
+ *
  * @author monster
  */
-public interface Timeline extends AutoCloseable, ClockServiceSource,
-        TimelineCreator {
+public interface Timeline extends ClockServiceSource, AutoCloseable {
 
     /** Returns the name of the timeline. */
     String name();
 
-    /** Returns true, if the timeline is currently paused. */
-    boolean paused();
+    /**
+     * Returns true, if the timeline is currently "locally" paused.
+     * That means it is itself explicitly paused, independent of it's parent.
+     */
+    boolean pausedLocally();
+
+    /**
+     * Returns true, if the timeline is currently "globally" paused.
+     * That means it is itself explicitly paused, or it's parent.
+     */
+    boolean pausedGlobally();
+
+    /**
+     * Returns the local tick step. It should always be positive. It is
+     * multiplied by the parent global tick step, to obtain the child global
+     * tick step.
+     */
+    double localTickStep();
+
+    /**
+     * Returns the global tick step, that controls the tick period.
+     * In other words, it controls how much time passes between two ticks.
+     *
+     * The step represents the number of "core ticks" required, before a new
+     * tick will be produced in this timeline. Since core ticks are discrete,
+     * the globalTickStep() will only be accurate, if it is an integral value.
+     * Otherwise, we might end-up with an alternating number of core ticks per
+     * "own tick".
+     *
+     * It is important to realize that it only represents the step for the
+     * coming tick(s), not for not for the past ones, as the step could vary over
+     * time.
+     *
+     * The step never affects the startTickValue().
+     */
+    double globalTickStep();
+
+    /**
+     * If this timeline has it's duration fixed ahead of time, it will be
+     * returned as a number of ticks. 0 can be used to signify no fixed
+     * duration.
+     */
+    long fixedDurationTicks();
+
+    /**
+     * If the timeline has a fixed duration, should it just end, or reset?
+     */
+    boolean loopWhenReachingEnd();
+
+    /** Returns the local scaling applied to runningElapsedTicks(). */
+    double localTickScaling();
+
+    /**
+     * Returns the global scaling, applied to runningElapsedTicks().
+     * It results from multiplying the local scaling, by the parent global
+     * scaling.
+     */
+    double globalTickScaling();
+
+    /** Returns the fixed offset added to time. */
+    double timeOffset();
+
+    /**
+     * Returns the *expected* tick period, in nanoseconds, for the coming ticks.
+     * It depends on the global tick step, and should be a multiple of the core
+     * tick period.
+     */
+    long tickPeriod();
+
+    /**
+     * Returns the *expected* number of ticks per second, based on the current
+     * tick period.
+     */
+    double ticksPerSecond();
+
+    /**
+     * Returns the nano-time at which this timeline was started.
+     * It would be conceivable, that this time is still in the future.
+     * It can change, after a reset() or "loop".
+     */
+    long startTimePoint();
+
+    /**
+     * Returns the time in seconds at which this timeline was started.
+     * It would be conceivable, that this time is still in the future.
+     * It can change, after a reset() or "loop".
+     */
+    double startTimePointSec();
+
+    /**
+     * Returns the total nano-time spent in paused state, since this timeline
+     * was created.
+     * It will be reset to 0, after a reset() or "loop".
+     */
+    long pausedElapsedTime();
+
+    /**
+     * Returns the total time in seconds spent in paused state, since this
+     * timeline was created.
+     * It will be reset to 0, after a reset() or "loop".
+     */
+    double pausedElapsedTimeSec();
+
+    /**
+     * Returns the total nano-time spent in running state, since this timeline
+     * was created. This could also be called the relative, or elapsed, time.
+     * It will be reset to 0, after a reset() or "loop".
+     */
+    long runningElapsedTime();
+
+    /**
+     * Returns the total time in seconds spent in running state, since this
+     * timeline was created. This could also be called the relative, or
+     * elapsed, time. It will be reset to 0, after a reset() or "loop".
+     */
+    double runningElapsedTimeSec();
+
+    /**
+     * Returns the total nano-time spent in any state, since this timeline was
+     * created.
+     * It will be reset to 0, after a reset() or "loop".
+     */
+    long totalElapsedTime();
+
+    /**
+     * Returns the total time in seconds spent in any state, since this
+     * timeline was created.
+     * It will be reset to 0, after a reset() or "loop".
+     */
+    double totalElapsedTimeSec();
+
+    /** Returns the total ticks spent in paused state, since this timeline was created. */
+    long pausedElapsedTicks();
+
+    /**
+     * Returns the total ticks spent in running state, since this timeline was
+     * created.
+     * It will be reset to 0, after a reset() or "loop".
+     */
+    long runningElapsedTicks();
+
+    /**
+     * Returns the total ticks spent in any state, since this timeline was
+     * created.
+     * It will be reset to 0, after a reset() or "loop".
+     */
+    long totalElapsedTicks();
+
+    /**
+     * If fixedDurationTicks() is not 0, then we can compute how far we got
+     * along this timeline, and return it as a fraction, within [0,1].
+     * Returns -1 if fixedDurationTicks() is 0.
+     */
+    double progress();
+
+    /**
+     * Returns the "time" of this timeline. This is the value that most parts
+     * of the application are interested in. It's meaning is arbitrary. It is
+     * obtained by: (timeOffset() + globalTickScaling() * runningElapsedTicks()).
+     * Being a double, it is not as precise as a long would be, but this is
+     * required, to allow any kind of scaling.
+     */
+    double time();
+
+    /** Returns the *last* clock tick, if any. */
+    Time lastTick();
+
+    ///////////////////////////////////////////////////////////////////////////
+    // The following methods causes modification to the Timeline.
+    ///////////////////////////////////////////////////////////////////////////
+
+    /** Resets the timeline to the beginning, as if it was just created. */
+    void reset();
 
     /**
      * Pauses the clock. No more ticks are produced.
-     * Note that the pause effectively starts at the *next* tick.
+     * Note that the pause effectively starts at the *next* core tick.
      */
     void pause();
 
     /**
      * Un-pauses the clock. Note that the clock effectively resumes at the
-     * *next* tick.
+     * *next* core tick.
      */
     void unpause();
 
-    /** Returns the nano-time at which this timeline was created. */
-    long startTime();
-
-    /** Returns the total nano-time spent in paused state, since this timeline was created. */
-    long pausedTime();
-
-    /** Returns the real-time offset, in nanoseconds (usually 0). */
-    long realTimeOffset();
-
-    /** Returns the current clock ticks. */
-    long ticks();
-
-    /** Sets the current clock ticks. */
-    void setTicks(long ticks);
+    /**
+     * Creates a new TimelineBuilder that allows the creation of a new child
+     * Timeline.
+     * @param cloneState if true, all parameters will be copied from self.
+     * @param scheduler the scheduler that holds the timeline.
+     */
+    TimelineBuilder newChildTimeline(boolean cloneState, Scheduler scheduler);
 
     /**
-     * Modifies the clock ticks by the given amount, and returns the new value.
+     * Creates a new TimelineBuilder that allows the creation of a new sibling
+     * Timeline.
+     * @param cloneState if true, all parameters will be copied from self.
+     * @param scheduler the scheduler that holds the timeline.
      */
-    long offsetTicks(long delta);
-
-    /**
-     * Returns the expected number of ticks per second (never negative).
-     * It must be a real number, because a slow timeline could give less
-     * then one one tick per second, for example one tick per minute.
-     */
-    float ticksPerSecond();
-
-    /** Returns the expected tick period, in nanoseconds (never negative). */
-    long tickPeriode();
-
-    /**
-     * Returns the number of ticks from the parent timeline required, before
-     * one tick of this clock passes. If this clock goes in the opposite
-     * direction as the parent clock, it will be negative, but can never be 0.
-     */
-    int clockDivider();
-
-    /** Sets the parent ratio. */
-    void setClockDivider(int divider);
-
-    /** Returns the *last* clock tick, if any. */
-    Time lastTick();
-
-    /** Tries to convert the Time instance to the own time scale. Returns null on failure. */
-    Time convert(Time time);
+    TimelineBuilder newSiblingTimeline(boolean cloneState, Scheduler scheduler);
 
     /**
      * Register a TimeListener, which is called at every clock tick.
      * It will always be called from the same thread.
      *
-     * The time listener must *never* do long running, or blocking, operations!
+     * The time listener must *never* do long, or blocking, operations!
      * This would delay all the other time listeners, and cause fluctuation
      * in the global tick period.
      */
     Task<TimeListener> registerListener(final TimeListener listener);
+
+    /**
+     * Register a Ticker, which is called at every core clock tick.
+     * It will always be called from the same thread.
+     *
+     * The Ticker must *never* do long, or blocking, operations!
+     * This would delay all the other time listeners, and cause fluctuation
+     * in the global tick period.
+     */
+    Task<Ticker> registerListener(final Ticker listener);
 }

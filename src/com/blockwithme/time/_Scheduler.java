@@ -15,18 +15,15 @@
  */
 package com.blockwithme.time;
 
+
 /**
- * A TimelineCreator creates new Timelines.
+ * Internal Scheduler interface.
  *
  * @author monster
  */
-public interface TimelineCreator {
+public interface _Scheduler extends Scheduler {
 
-    /**
-     * Creates a new TimelineBuilder that allows the creation of a new Timeline.
-     *
-     * @param name The Timeline name. Cannot be null or empty. Used for debugging; ideally unique.
-     */
-    TimelineBuilder newTimeline(String name);
+    /** Enqueues a task, so that they can be cancelled later. */
+    <E extends AutoCloseable> E queue(final E task);
 
 }

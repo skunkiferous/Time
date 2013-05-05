@@ -49,7 +49,6 @@ public interface CoreScheduler extends AutoCloseable {
     Task<Runnable> scheduleNS(final Runnable task, final Handler errorHandler,
             final long delayNS);
 
-    /** Register a Runnable, which is called at every clock tick. */
-    Task<Runnable> scheduleTicker(final Runnable task,
-            final Handler errorHandler);
+    /** Register a Ticker, which is called at every clock tick. */
+    Task<Ticker> scheduleTicker(final Ticker task);
 }

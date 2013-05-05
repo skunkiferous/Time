@@ -16,18 +16,18 @@
 package com.blockwithme.time;
 
 /**
- * A task dependent on the logical application time.
- *
- * The time listener must *never* do long running, or blocking, operations!
- * This would delay all the other time listeners, and cause fluctuation
- * in the global tick period.
+ * Called by the CoreScheduler at every tick.
  *
  * @author monster
  */
-public interface TimeListener {
+public interface Ticker {
     /**
-     * Called when the logical time changes.
-     * Will be null, to signify closure of the timeline.
+     * Called on every tick (but ticks > 1 on delay).
+     *
+     * @param ticks Normally 1, but could be more, if we had "lag" ...
+     * @param timeNanos The current time in nanoseconds.
+     *
+     * @return true if this ticker should be close.
      */
-    void onTimeChange(Time time);
+    boolean onTick(final int ticks, final long timeNanos);
 }

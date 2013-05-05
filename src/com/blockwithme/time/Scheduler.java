@@ -44,34 +44,16 @@ import org.threeten.bp.ZonedDateTime;
  *
  * @author monster
  */
-public interface Scheduler extends AutoCloseable, ClockServiceSource,
-        TimelineCreator {
+public interface Scheduler extends AutoCloseable, ClockServiceSource {
 
     /** Exception handler. */
     interface Handler {
         /** Handles exceptions. */
-        void onError(final Runnable task, final Throwable error);
+        void onError(final Object task, final Throwable error);
     }
 
     /** Returns the name of the scheduler. */
     String name();
-
-    /**
-     * Closes the scheduler.
-     * @see java.util.Timer.cancel()
-     */
-    @Override
-    void close() throws Exception;
-
-    /**
-     * Register a Runnable, which is called at every clock tick.
-     * The period of the clock tick is a constant fixed in the ClockService.
-     *
-     * The Runnable must *never* do long running, or blocking, operations!
-     * This would delay all the other Runnables, and cause fluctuation
-     * in the global tick period.
-     */
-    Task<Runnable> scheduleTicker(final Runnable task);
 
     ///////////////////////////////////////////////////////////////////////
     // The rest of the methods are similar to what is in java.util.Timer //

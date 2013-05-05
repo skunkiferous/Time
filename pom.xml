@@ -12,7 +12,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.blockwithme</groupId>
 	<artifactId>Time</artifactId>
-	<version>0.0.6</version>
+	<version>0.0.7</version>
 	<packaging>bundle</packaging>
 	<name>Time</name>
 	<description>Time, and time-based task execution, that still works in the presence of a bad system clock.</description>
