@@ -64,7 +64,7 @@ public class Test {
         cal.add(Calendar.DATE, DAYS_OFFSET_TO_BE_BEFORE_DST_CHANGE);
         final Date start = cal.getTime();
         // DST Change: Sunday, 31 March 2013 01:59:59 (local time)
-        final long oneHour = 3600000L;
+        final long oneHour = Time.HOUR_MS;
         for (int i = 0; i < 12; i++) {
             final Date date = new Date(start.getTime() + i * oneHour);
             System.out.println("UTC: " + date + "   toLocal: "

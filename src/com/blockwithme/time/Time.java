@@ -41,20 +41,38 @@ public class Time implements Comparable<Time>, ClockServiceSource {
     /** One second, in nano-seconds. */
     public static final long SECOND_NS = SECOND_MS * MILLI_NS;
 
+    /** One minute, in seconds. */
+    public static final long MINUTE_SECONDS = 60L;
+
     /** One minute, in milli-seconds. */
-    public static final long MINUTE_MS = 60L * 1000L;
+    public static final long MINUTE_MS = MINUTE_SECONDS * SECOND_MS;
 
     /** One minute, in nano-seconds. */
     public static final long MINUTE_NS = MINUTE_MS * MILLI_NS;
 
+    /** One hour, in minutes. */
+    public static final long HOUR_MINUTES = 60L;
+
+    /** One hour, in seconds. */
+    public static final long HOUR_SECONDS = HOUR_MINUTES * MINUTE_SECONDS;
+
     /** One hour, in milli-seconds. */
-    public static final long HOUR_MS = 60L * MINUTE_MS;
+    public static final long HOUR_MS = HOUR_MINUTES * MINUTE_MS;
 
     /** One hour, in nano-seconds. */
     public static final long HOUR_NS = HOUR_MS * MILLI_NS;
 
+    /** One day, in hours. */
+    public static final long DAY_HOURS = 24L;
+
+    /** One day, in minutes. */
+    public static final long DAY_MINUTES = DAY_HOURS * HOUR_MINUTES;
+
+    /** One day, in seconds. */
+    public static final long DAY_SECONDS = DAY_MINUTES * MINUTE_SECONDS;
+
     /** One day, in milli-seconds. */
-    public static final long DAY_MS = 24L * HOUR_MS;
+    public static final long DAY_MS = DAY_HOURS * HOUR_MS;
 
     /** One day, in nano-seconds. */
     public static final long DAY_NS = DAY_MS * MILLI_NS;
