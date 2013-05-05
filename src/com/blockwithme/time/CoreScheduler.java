@@ -38,16 +38,18 @@ public interface CoreScheduler extends AutoCloseable {
     void close() throws Exception;
 
     /** @see java.util.Timer.scheduleAtFixedRat(TimerTask,long,long) */
-    Task<Runnable> scheduleAtFixedRateNS(final Runnable task,
-            final Handler errorHandler, final long delayNS, final long periodNS);
+    Task<Runnable> scheduleAtFixedRateMUS(final Runnable task,
+            final Handler errorHandler, final long delayMUS,
+            final long periodMUS);
 
     /** @see java.util.Timer.schedule(TimerTask,long,long) */
-    Task<Runnable> scheduleAtFixedPeriodNS(final Runnable task,
-            final Handler errorHandler, final long delayNS, final long periodNS);
+    Task<Runnable> scheduleAtFixedPeriodMUS(final Runnable task,
+            final Handler errorHandler, final long delayMUS,
+            final long periodMUS);
 
     /** @see java.util.Timer.schedule(TimerTask,long) */
-    Task<Runnable> scheduleNS(final Runnable task, final Handler errorHandler,
-            final long delayNS);
+    Task<Runnable> scheduleMUS(final Runnable task, final Handler errorHandler,
+            final long delayMUS);
 
     /** Register a Ticker, which is called at every clock tick. */
     Task<Ticker> scheduleTicker(final Ticker task);

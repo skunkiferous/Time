@@ -34,8 +34,8 @@ import org.threeten.bp.ZonedDateTime;
  * (With the exception of ZonedDateTime, which contains it's own timezone
  * specification.)
  *
- * We also accept nano-seconds values for convenience, in the methods suffixed
- * with "NS", but *currently* do not offer sub-millisecond precision.
+ * We also accept microseconds values for convenience, in the methods suffixed
+ * with "MUS", but *currently* do not offer sub-millisecond precision.
  *
  * The scheduler instances are lightweight, which mean they do not get their
  * own thread, and so can be cheaply created and destroyed. OTOH, it means that
@@ -78,7 +78,7 @@ public interface Scheduler extends AutoCloseable, ClockServiceSource {
     Task<Runnable> scheduleOnce(Runnable task, final long delayMS);
 
     /** @see java.util.Timer.schedule(TimerTask,long) */
-    Task<Runnable> scheduleOnceNS(Runnable task, final long delayNS);
+    Task<Runnable> scheduleOnceMUS(Runnable task, final long delayMUS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
     Task<Runnable> scheduleAtFixedPeriod(Runnable task,
@@ -101,32 +101,32 @@ public interface Scheduler extends AutoCloseable, ClockServiceSource {
             final LocalTime firstTime, final long periodMS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    Task<Runnable> scheduleAtFixedPeriodNS(Runnable task,
-            final Date firstTimeUTC, final long periodNS);
+    Task<Runnable> scheduleAtFixedPeriodMUS(Runnable task,
+            final Date firstTimeUTC, final long periodMUS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    Task<Runnable> scheduleAtFixedPeriodNS(Runnable task,
-            final Instant firstTimeUTC, final long periodNS);
+    Task<Runnable> scheduleAtFixedPeriodMUS(Runnable task,
+            final Instant firstTimeUTC, final long periodMUS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    Task<Runnable> scheduleAtFixedPeriodNS(Runnable task,
-            final ZonedDateTime firstTime, final long periodNS);
+    Task<Runnable> scheduleAtFixedPeriodMUS(Runnable task,
+            final ZonedDateTime firstTime, final long periodMUS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    Task<Runnable> scheduleAtFixedPeriodNS(Runnable task,
-            final LocalDateTime firstTime, final long periodNS);
+    Task<Runnable> scheduleAtFixedPeriodMUS(Runnable task,
+            final LocalDateTime firstTime, final long periodMUS);
 
     /** @see java.util.Timer.schedule(TimerTask,java.util.Date,long) */
-    Task<Runnable> scheduleAtFixedPeriodNS(Runnable task,
-            final LocalTime firstTime, final long periodNS);
+    Task<Runnable> scheduleAtFixedPeriodMUS(Runnable task,
+            final LocalTime firstTime, final long periodMUS);
 
     /** @see java.util.Timer.schedule(TimerTask,long,long) */
     Task<Runnable> scheduleAtFixedPeriod(Runnable task, final long delayMS,
             final long periodMS);
 
     /** @see java.util.Timer.schedule(TimerTask,long,long) */
-    Task<Runnable> scheduleAtFixedPeriodNS(Runnable task, final long delayNS,
-            final long periodNS);
+    Task<Runnable> scheduleAtFixedPeriodMUS(Runnable task, final long delayMUS,
+            final long periodMUS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
     Task<Runnable> scheduleAtFixedRate(Runnable task, final Date firstTimeUTC,
@@ -149,30 +149,30 @@ public interface Scheduler extends AutoCloseable, ClockServiceSource {
             final LocalTime firstTime, final long periodMS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    Task<Runnable> scheduleAtFixedRateNS(Runnable task,
-            final Date firstTimeUTC, final long periodNS);
+    Task<Runnable> scheduleAtFixedRateMUS(Runnable task,
+            final Date firstTimeUTC, final long periodMUS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    Task<Runnable> scheduleAtFixedRateNS(Runnable task,
-            final Instant firstTimeUTC, final long periodNS);
+    Task<Runnable> scheduleAtFixedRateMUS(Runnable task,
+            final Instant firstTimeUTC, final long periodMUS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    Task<Runnable> scheduleAtFixedRateNS(Runnable task,
-            final ZonedDateTime firstTime, final long periodNS);
+    Task<Runnable> scheduleAtFixedRateMUS(Runnable task,
+            final ZonedDateTime firstTime, final long periodMUS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    Task<Runnable> scheduleAtFixedRateNS(Runnable task,
-            final LocalDateTime firstTime, final long periodNS);
+    Task<Runnable> scheduleAtFixedRateMUS(Runnable task,
+            final LocalDateTime firstTime, final long periodMUS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,java.util.Date,long) */
-    Task<Runnable> scheduleAtFixedRateNS(Runnable task,
-            final LocalTime firstTime, final long periodNS);
+    Task<Runnable> scheduleAtFixedRateMUS(Runnable task,
+            final LocalTime firstTime, final long periodMUS);
 
     /** @see scheduleAtFixedRate(TimerTask,long,long) */
     Task<Runnable> scheduleAtFixedRate(final Runnable task, final long delayMS,
             final long periodMS);
 
     /** @see java.util.Timer.scheduleAtFixedRate(TimerTask,long,long) */
-    Task<Runnable> scheduleAtFixedRateNS(Runnable task, final long delayNS,
-            final long periodNS);
+    Task<Runnable> scheduleAtFixedRateMUS(Runnable task, final long delayMUS,
+            final long periodMUS);
 }

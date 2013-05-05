@@ -61,9 +61,9 @@ public class CS {
         return clockService.currentTimeMillis();
     }
 
-    /** Returns the current *UTC* time, in nanoseconds. */
-    public static long currentTimeNanos() {
-        return clockService.currentTimeNanos();
+    /** Returns the current *UTC* time, in microseconds. */
+    public static long currentTimeMicros() {
+        return clockService.currentTimeMicros();
     }
 
     /** Returns a new Date, using the current *UTC* time. */
@@ -77,7 +77,7 @@ public class CS {
     }
 
     /**
-     * Returns a nano-seconds precision *UTC* Clock instance.
+     * Returns a microseconds precision *UTC* Clock instance.
      *
      * Note that the time should be (relatively) correct for UTC,
      * even if the local clock is wrong.
@@ -94,7 +94,7 @@ public class CS {
     }
 
     /**
-     * Returns a nano-seconds precision default timezone Clock instance.
+     * Returns a micorseconds precision default timezone Clock instance.
      *
      * Note that the time should be (relatively) correct for the given
      * timezone, even if the local clock is wrong.

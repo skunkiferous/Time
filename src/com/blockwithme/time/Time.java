@@ -18,6 +18,7 @@ package com.blockwithme.time;
 import java.util.Objects;
 
 import org.threeten.bp.Instant;
+import org.threeten.bp.jdk8.Jdk8Methods;
 
 /**
  * Represents the time as an application logical clock tick.
@@ -26,20 +27,28 @@ import org.threeten.bp.Instant;
  *
  * Comparison is based strictly on the value of tickTime.
  *
- * All time values as long are in nanoseconds.
+ * All *time* values as long are in microseconds. After experimenting with
+ * the Java methods to get the real time, and to sleep, I came to the
+ * conclusion that achieving better then microsecond precision was basically
+ * impossible. Also, I want to be able to express the time-in-seconds as a
+ * double, and so we would loose the nanosecond precision anyway.
+ *
+ * Since both milliseconds and microseconds start with "m", I will use MUS as
+ * shortcut for microseconds, aka mu-seconds, because the symbol for "micro"-
+ * something is called "mu".
  *
  * @author monster
  */
 public class Time implements Comparable<Time>, ClockServiceSource {
 
-    /** One milli-second, in nano-seconds. */
-    public static final long MILLI_NS = 1000000L;
+    /** One milli-second, in microseconds. */
+    public static final long MILLI_MUS = 1000L;
 
     /** One second, in milli-seconds. */
     public static final long SECOND_MS = 1000L;
 
-    /** One second, in nano-seconds. */
-    public static final long SECOND_NS = SECOND_MS * MILLI_NS;
+    /** One second, in microseconds. */
+    public static final long SECOND_MUS = SECOND_MS * MILLI_MUS;
 
     /** One minute, in seconds. */
     public static final long MINUTE_SECONDS = 60L;
@@ -47,8 +56,8 @@ public class Time implements Comparable<Time>, ClockServiceSource {
     /** One minute, in milli-seconds. */
     public static final long MINUTE_MS = MINUTE_SECONDS * SECOND_MS;
 
-    /** One minute, in nano-seconds. */
-    public static final long MINUTE_NS = MINUTE_MS * MILLI_NS;
+    /** One minute, in microseconds. */
+    public static final long MINUTE_MUS = MINUTE_MS * MILLI_MUS;
 
     /** One hour, in minutes. */
     public static final long HOUR_MINUTES = 60L;
@@ -59,8 +68,8 @@ public class Time implements Comparable<Time>, ClockServiceSource {
     /** One hour, in milli-seconds. */
     public static final long HOUR_MS = HOUR_MINUTES * MINUTE_MS;
 
-    /** One hour, in nano-seconds. */
-    public static final long HOUR_NS = HOUR_MS * MILLI_NS;
+    /** One hour, in microseconds. */
+    public static final long HOUR_MUS = HOUR_MS * MILLI_MUS;
 
     /** One day, in hours. */
     public static final long DAY_HOURS = 24L;
@@ -74,8 +83,8 @@ public class Time implements Comparable<Time>, ClockServiceSource {
     /** One day, in milli-seconds. */
     public static final long DAY_MS = DAY_HOURS * HOUR_MS;
 
-    /** One day, in nano-seconds. */
-    public static final long DAY_NS = DAY_MS * MILLI_NS;
+    /** One day, in microseconds. */
+    public static final long DAY_MUS = DAY_MS * MILLI_MUS;
 
     /** The source of this time instance. */
     public final Timeline source;
@@ -86,22 +95,22 @@ public class Time implements Comparable<Time>, ClockServiceSource {
      */
     public volatile Time lastTick;
 
-    /** The time, in nanoseconds, at which this Time instance was created. */
+    /** The time, in microseconds, at which this Time instance was created. */
     public final long creationTime;
 
     /** The time, in seconds, at which this Time instance was created. */
     public final double creationTimeSec;
 
-    /** Nanoseconds elapsed, since last tick. */
+    /** Microseconds elapsed, since last tick. */
     public final long tickDuration;
 
     /** Seconds elapsed, since last tick. */
     public final double tickDurationSec;
 
     /**
-     * Returns the total nano-time spent in running state, since this timeline
-     * was created. This could also be called the relative, or elapsed, time.
-     * It will be reset to 0, after a reset() or "loop".
+     * Returns the total microseconds-time spent in running state, since this
+     * timeline was created. This could also be called the relative, or
+     * elapsed, time. It will be reset to 0, after a reset() or "loop".
      */
     public final long runningElapsedTime;
 
@@ -137,7 +146,7 @@ public class Time implements Comparable<Time>, ClockServiceSource {
     /** Number of core ticks, since source creation. */
     public final long ticks;
 
-    /** Time of this tick, in nanoseconds, as an Instant. */
+    /** Time of this tick, in microseconds, as an Instant. */
     private Instant tickTimeInstant;
 
     /** toString */
@@ -145,21 +154,21 @@ public class Time implements Comparable<Time>, ClockServiceSource {
 
     /** Creates a Time instance. */
     public Time(final Timeline theSource, final long theTicks,
-            final long timeNanos, final long theRunningElapsedTime,
+            final long timeMicros, final long theRunningElapsedTime,
             final double theProgress, final double theTime,
             final long theRunningElapsedTicks, final Time theLastTick) {
         source = Objects.requireNonNull(theSource, "theSource");
         lastTick = theLastTick;
         runningElapsedTime = theRunningElapsedTime;
-        runningElapsedTimeSec = ((double) runningElapsedTime) / Time.SECOND_NS;
+        runningElapsedTimeSec = ((double) runningElapsedTime) / Time.SECOND_MUS;
         progress = theProgress;
         time = theTime;
-        creationTime = timeNanos;
+        creationTime = timeMicros;
         ticks = theTicks;
         tickDuration = runningElapsedTime
                 - ((lastTick == null) ? 0 : lastTick.runningElapsedTime);
-        tickDurationSec = ((double) tickDuration) / Time.SECOND_NS;
-        creationTimeSec = ((double) creationTime) / Time.SECOND_NS;
+        tickDurationSec = ((double) tickDuration) / Time.SECOND_MUS;
+        creationTimeSec = ((double) creationTime) / Time.SECOND_MUS;
         runningElapsedTicks = theRunningElapsedTicks;
     }
 
@@ -211,10 +220,12 @@ public class Time implements Comparable<Time>, ClockServiceSource {
         return source.clockService();
     }
 
-    /** Time of this tick, in nanoseconds, as an Instant. */
+    /** Time of this tick, in microseconds, as an Instant. */
     public final Instant tickTimeInstant() {
         if (tickTimeInstant == null) {
-            tickTimeInstant = Instant.ofEpochSecond(0, creationTime);
+            final long secs = Jdk8Methods.floorDiv(creationTime, SECOND_MUS);
+            final long nos = Jdk8Methods.floorMod(creationTime, SECOND_MUS) * 1000L;
+            tickTimeInstant = Instant.ofEpochSecond(secs, nos);
         }
         return tickTimeInstant;
     }

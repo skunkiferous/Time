@@ -142,7 +142,7 @@ public interface Timeline extends ClockServiceSource, AutoCloseable {
     double timeOffset();
 
     /**
-     * Returns the *expected* tick period, in nanoseconds, for the coming ticks.
+     * Returns the *expected* tick period, in microseconds, for the coming ticks.
      * It depends on the global tick step, and should be a multiple of the core
      * tick period.
      */
@@ -155,7 +155,7 @@ public interface Timeline extends ClockServiceSource, AutoCloseable {
     double ticksPerSecond();
 
     /**
-     * Returns the nano-time at which this timeline was started.
+     * Returns the micro-time at which this timeline was started.
      * It would be conceivable, that this time is still in the future.
      * It can change, after a reset() or "loop".
      */
@@ -169,7 +169,7 @@ public interface Timeline extends ClockServiceSource, AutoCloseable {
     double startTimePointSec();
 
     /**
-     * Returns the total nano-time spent in paused state, since this timeline
+     * Returns the total micro-time spent in paused state, since this timeline
      * was created.
      * It will be reset to 0, after a reset() or "loop".
      */
@@ -183,7 +183,7 @@ public interface Timeline extends ClockServiceSource, AutoCloseable {
     double pausedElapsedTimeSec();
 
     /**
-     * Returns the total nano-time spent in running state, since this timeline
+     * Returns the total micro-time spent in running state, since this timeline
      * was created. This could also be called the relative, or elapsed, time.
      * It will be reset to 0, after a reset() or "loop".
      */
@@ -197,7 +197,7 @@ public interface Timeline extends ClockServiceSource, AutoCloseable {
     double runningElapsedTimeSec();
 
     /**
-     * Returns the total nano-time spent in any state, since this timeline was
+     * Returns the total micro-time spent in any state, since this timeline was
      * created.
      * It will be reset to 0, after a reset() or "loop".
      */

@@ -35,8 +35,8 @@ public interface ClockService extends AutoCloseable {
     /** Returns the current time, in milliseconds. */
     long currentTimeMillis();
 
-    /** Returns the current time, in nanoseconds. */
-    long currentTimeNanos();
+    /** Returns the current time, in microseconds. */
+    long currentTimeMicros();
 
     /** Returns a new Date, using currentTimeMillis(). */
     Date date();
@@ -45,7 +45,7 @@ public interface ClockService extends AutoCloseable {
     Calendar calendar();
 
     /**
-     * Returns a nano-seconds precision *UTC* Clock instance.
+     * Returns a microseconds precision *UTC* Clock instance.
      *
      * Note that the time should be (relatively) correct for UTC,
      * even if the local clock is wrong.
@@ -65,7 +65,7 @@ public interface ClockService extends AutoCloseable {
     Calendar localCalendar();
 
     /**
-     * Returns a nano-seconds precision default timezone Clock instance.
+     * Returns a micorseconds precision default timezone Clock instance.
      *
      * Note that the time should be (relatively) correct for the given
      * timezone, even if the local clock is wrong.
@@ -75,25 +75,25 @@ public interface ClockService extends AutoCloseable {
     Clock localClock();
 
     /**
-     * Sleeps (approximately) for the given amount of nanoseconds.
+     * Sleeps (approximately) for the given amount of microseconds.
      *
      * The precision should be much better then Thread.sleep(), but consumes
      * more CPU then a normal sleep. Thread.sleep(long) should still be
      * preferred for long sleeps, that do not need to be precise.
      *
      * Note that *in most implementations* of the JDK, Thread.sleep(long,int)
-     * does *not* give you precise sleep, as the amount of nanosecond is just
+     * does *not* give you precise sleep, as the amount of microsecond is just
      * rounded to the nearest millisecond!
      *
      * @throws InterruptedException
      */
-    void sleepNanos(final long sleepNanos) throws InterruptedException;
+    void sleepMicros(final long sleepMicros) throws InterruptedException;
 
     /** Returns the number of clock ticks per second. */
     int ticksPerSecond();
 
-    /** Returns the duration of a clock tick in nanoseconds. */
-    long tickDurationNanos();
+    /** Returns the duration of a clock tick in microseconds. */
+    long tickDurationMicros();
 
     /** Returns the core timeline. */
     Timeline coreTimeline();

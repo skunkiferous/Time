@@ -36,7 +36,7 @@ public interface TimelineBuilder {
     TimelineBuilder running();
 
     /**
-     * Sets the nano-time at which this timeline will be started. It should be
+     * Sets the micro-time at which this timeline will be started. It should be
      * in the future. By default, the time when create() is called is used.
      * Null means use the default behavior.
      */

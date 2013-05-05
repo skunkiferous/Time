@@ -24,7 +24,7 @@ package com.blockwithme.time;
  *
  * To make things simple, intervals are closed and "inclusive" at both start
  * and end. Since time is represented as longs, both for real-time in
- * nanoseconds, and also logical application time, we can just use
+ * microseconds, and also logical application time, we can just use
  * Long.MIN_VALUE or Long.AMX_VALUE as limit, to simulate open intervals.
  *
  * @author monster

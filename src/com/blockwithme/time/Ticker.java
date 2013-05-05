@@ -25,9 +25,9 @@ public interface Ticker {
      * Called on every tick (but ticks > 1 on delay).
      *
      * @param ticks Normally 1, but could be more, if we had "lag" ...
-     * @param timeNanos The current time in nanoseconds.
+     * @param timeMicros The current time in microseconds.
      *
      * @return true if this ticker should be close.
      */
-    boolean onTick(final int ticks, final long timeNanos);
+    boolean onTick(final int ticks, final long timeMicros);
 }
