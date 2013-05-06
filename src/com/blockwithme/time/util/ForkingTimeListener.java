@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.blockwithme.time;
+package com.blockwithme.time.util;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
+
+import com.blockwithme.time.Time;
+import com.blockwithme.time.TimeListener;
 
 /**
  * Allows a TimeListener task to be run on another thread, using an Executor.

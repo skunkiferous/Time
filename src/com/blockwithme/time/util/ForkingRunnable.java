@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.blockwithme.time;
+package com.blockwithme.time.util;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
