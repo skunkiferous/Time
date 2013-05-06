@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.blockwithme.time;
+package com.blockwithme.time.implapi;
 
 /**
  * The clock synchronizers are used to find the difference between the current

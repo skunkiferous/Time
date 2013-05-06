@@ -36,13 +36,16 @@ public interface TimelineBuilder {
     TimelineBuilder running();
 
     /**
-     * Sets the micro-time at which this timeline will be started. It should be
+     * Sets the microtime at which this timeline will be started. It should be
      * in the future. By default, the time when create() is called is used.
      * Null means use the default behavior.
      */
     TimelineBuilder setStartTimePoint(Long startTimePoint);
 
-    /** Sets the local tick step. */
+    /**
+     * Sets the local tick step. Must be greater then 0.
+     * @see com.blockwithme.time.Timeline#globalTickStep()
+     */
     TimelineBuilder setLocalTickStep(double step);
 
     /**
@@ -53,14 +56,21 @@ public interface TimelineBuilder {
 
     /**
      * Specifies, if the timeline has a fixed duration, if it should just end,
-     * or reset itself?
+     * or reset itself? The default is just to end.
      */
     TimelineBuilder setLoopWhenReachingEnd(boolean loopWhenReachingEnd);
 
-    /** Sets the local scaling applied to runningElapsedTicks(). */
+    /**
+     * Sets the local scaling applied to runningElapsedTicks().
+     * Cannot be 0.
+     * @see com.blockwithme.time.Timeline#runningElapsedTicks()
+     */
     TimelineBuilder setLocalTickScaling(double scaling);
 
-    /** Sets the fixed offset added to produce "time()". */
+    /**
+     * Sets the fixed offset added to produce "time()".
+     * @see com.blockwithme.time.Timeline#time()
+     */
     TimelineBuilder setTimeOffset(double timeOffset);
 
     /**
@@ -68,10 +78,10 @@ public interface TimelineBuilder {
      * second. Note that there are limitations. Firstly, it cannot be more then
      * the core tick frequency. Secondly, it unless is a factor of the core
      * tick frequency, it will only be *on average* following the desired
-     * number of ticks per second. And finally, this can also be overriden by
-     * the parent, if the parent cahnges it's ow
-     * @param i
-     * @return
+     * number of ticks per second. And finally, this can also be overridden by
+     * the parent, if the parent changes it's own tick step.
+     *
+     * @param ticksPerSecond The desired number of ticks per second, taking into consideration the parent settings.
      */
     TimelineBuilder setTicksPerSecond(double ticksPerSecond);
 }

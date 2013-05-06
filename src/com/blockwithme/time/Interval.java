@@ -20,12 +20,13 @@ package com.blockwithme.time;
  *
  * It can refer either to an interval within real-time, or within some logical
  * application time. If it represents the real time, relativeTo() will be null.
- * Otherwise, relativeTo() will define the context for this interval.
+ * Otherwise, relativeTo() will define the context for this interval, and the
+ * start/end will express a number of ticks on that timeline.
  *
  * To make things simple, intervals are closed and "inclusive" at both start
  * and end. Since time is represented as longs, both for real-time in
  * microseconds, and also logical application time, we can just use
- * Long.MIN_VALUE or Long.AMX_VALUE as limit, to simulate open intervals.
+ * Long.MIN_VALUE or Long.MAX_VALUE as limit, to simulate open intervals.
  *
  * @author monster
  */
@@ -36,19 +37,56 @@ public interface Interval {
      */
     Timeline relativeTo();
 
-    /** The *inclusive* start of the time interval. */
+    /**
+     * The *inclusive* start of the time interval.
+     *
+     * It is either the time in microseconds, if relativeTo() is null, or it is
+     * a number of ticks on the given timeline.
+     */
     long start();
 
-    /** The *inclusive* end of the time interval. */
+    /**
+     * The *inclusive* end of the time interval.
+     *
+     * It is either the time in microseconds, if relativeTo() is null, or it is
+     * a number of ticks on the given timeline.
+     */
     long end();
 
-    /** Is this time value strictly before the interval? */
+    /** Returns true, if the start is open. */
+    boolean isOpenStart();
+
+    /** Returns true, if the end is open. */
+    boolean isOpenEnd();
+
+    /** Returns true, if either start or end is open. */
+    boolean isOpen();
+
+    /** Returns null if the Interval is open, otherwise end() - start(). */
+    Long duration();
+
+    /**
+     * Is this time value strictly before the interval?
+     *
+     * Time is either interpreted as the time in microseconds, if relativeTo()
+     * is null, or as a number of ticks on the given timeline.
+     */
     boolean beforeInterval(long time);
 
-    /** Is this time value strictly after the interval? */
+    /**
+     * Is this time value strictly after the interval?
+     *
+     * Time is either interpreted as the time in microseconds, if relativeTo()
+     * is null, or as a number of ticks on the given timeline.
+     */
     boolean afterInterval(long time);
 
-    /** Is this time value strictly within the interval? */
+    /**
+     * Is this time value strictly within the interval?
+     *
+     * Time is either interpreted as the time in microseconds, if relativeTo()
+     * is null, or as a number of ticks on the given timeline.
+     */
     boolean inInterval(long time);
 
     /**

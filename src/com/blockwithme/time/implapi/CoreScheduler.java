@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.blockwithme.time;
+package com.blockwithme.time.implapi;
 
+import com.blockwithme.time.ClockService;
 import com.blockwithme.time.Scheduler.Handler;
+import com.blockwithme.time.Task;
 
 /**
  * CoreScheduler is the interface required to implement the core (singleton)

@@ -56,22 +56,22 @@ public class CS {
         return clockService;
     }
 
-    /** Returns the current *UTC* time, in milliseconds. */
+    /** Returns the current time, in milliseconds. */
     public static long currentTimeMillis() {
         return clockService.currentTimeMillis();
     }
 
-    /** Returns the current *UTC* time, in microseconds. */
+    /** Returns the current time, in microseconds. */
     public static long currentTimeMicros() {
         return clockService.currentTimeMicros();
     }
 
-    /** Returns a new Date, using the current *UTC* time. */
+    /** Returns a new Date, using the current time. */
     public static Date date() {
         return clockService.date();
     }
 
-    /** Returns a new Calendar, using the current *UTC* time. */
+    /** Returns a new Calendar, using the current time. */
     public static Calendar calendar() {
         return clockService.calendar();
     }
@@ -94,7 +94,7 @@ public class CS {
     }
 
     /**
-     * Returns a micorseconds precision default timezone Clock instance.
+     * Returns a microseconds precision default timezone Clock instance.
      *
      * Note that the time should be (relatively) correct for the given
      * timezone, even if the local clock is wrong.

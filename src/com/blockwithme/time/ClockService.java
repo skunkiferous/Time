@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.threeten.bp.Clock;
+import org.threeten.bp.Duration;
 
 import com.blockwithme.time.Scheduler.Handler;
 
@@ -65,7 +66,7 @@ public interface ClockService extends AutoCloseable {
     Calendar localCalendar();
 
     /**
-     * Returns a micorseconds precision default timezone Clock instance.
+     * Returns a microseconds precision default timezone Clock instance.
      *
      * Note that the time should be (relatively) correct for the given
      * timezone, even if the local clock is wrong.
@@ -82,18 +83,12 @@ public interface ClockService extends AutoCloseable {
      * preferred for long sleeps, that do not need to be precise.
      *
      * Note that *in most implementations* of the JDK, Thread.sleep(long,int)
-     * does *not* give you precise sleep, as the amount of microsecond is just
+     * does *not* give you precise sleep, as the amount of nanosecond is just
      * rounded to the nearest millisecond!
      *
      * @throws InterruptedException
      */
     void sleepMicros(final long sleepMicros) throws InterruptedException;
-
-    /** Returns the number of clock ticks per second. */
-    int ticksPerSecond();
-
-    /** Returns the duration of a clock tick in microseconds. */
-    long tickDurationMicros();
 
     /** Returns the core timeline. */
     Timeline coreTimeline();
@@ -105,4 +100,31 @@ public interface ClockService extends AutoCloseable {
      * @param errorHandler can be null.
      */
     Scheduler newScheduler(final String name, final Handler errorHandler);
+
+    /**
+     * Creates a new time Interval. Use Long.MIN_VALUE or Long.MAX_VALUE as
+     * limit, to simulate open intervals. Start and end relate to the real
+     * time in microseconds.
+     *
+     * @see newDuration(long,long)
+     */
+    Interval newInterval(long startMicros, long endMicros);
+
+    /**
+     * Creates a new time Interval, starting now, of the give duration in
+     * microseconds.
+     *
+     * @see newDuration(long)
+     */
+    Interval newInterval(long durationMicros);
+
+    /**
+     * Creates a new Duration. Start and end relate to the real time in
+     * microseconds, and cannot be ong.MIN_VALUE or Long.MAX_VALUE, as
+     * durations are just that, durations, and so cannot be "open".
+     */
+    Duration newDuration(long startMicros, long endMicros);
+
+    /** Creates a new Duration, of the give duration in microseconds. */
+    Duration newDuration(long durationMicros);
 }
