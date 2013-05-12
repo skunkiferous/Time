@@ -69,7 +69,14 @@
 					<manifestLocation>${project.basedir}/META-INF</manifestLocation>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Export-Package>com.blockwithme.time</Export-Package>
+						<Export-Package>com.blockwithme.time;version=${project.version},
+						com.blockwithme.time.implapi;version=${project.version},
+						com.blockwithme.time.util;version=${project.version}</Export-Package>
+                        <Import-Package>
+               			    org.threeten.bp;version="[0.8,1)",
+               			    org.threeten.bp.jdk8;version="[0.8,1)",
+               			    javax.inject;version="[1.0,2)"
+              			</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -99,23 +106,12 @@
 		<dependency>
 			<groupId>org.threeten</groupId>
 			<artifactId>threetenbp</artifactId>
-			<version>0.8.1</version>
+			<version>[0.8,1)</version>
 		</dependency>
-       <dependency>
-       	    <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-       	    <version>4.3.0</version>
-            <scope>provided</scope>
-       	</dependency>
-        <dependency>
-       	    <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-       	    <version>4.3.1</version>
-        </dependency>
 		<dependency>
-			<groupId>javax.inject</groupId>
-			<artifactId>javax.inject</artifactId>
-			<version>1</version>
+			<groupId>com.blockwithme</groupId>
+			<artifactId>javax-inject</artifactId>
+			<version>[1.0,2)</version>
 		</dependency>
    	</dependencies>
 
@@ -123,17 +119,6 @@
 		<repository>
 			<id>blockwithme-mvn-repo</id>
 			<url>https://raw.github.com/skunkiferous/Maven/master</url>
-		</repository>
-		<repository>
-			<id>com.springsource.repository.bundles.release</id>
-			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle
-			Releases</name>
-			<url>http://repository.springsource.com/maven/bundles/release</url>
-		</repository>
-		<repository>
-			<id>com.springsource.repository.bundles.external</id>
-			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
-			<url>http://repository.springsource.com/maven/bundles/external</url>
 		</repository>
 	</repositories>
 </project>
