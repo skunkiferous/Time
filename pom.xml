@@ -73,9 +73,9 @@
 						com.blockwithme.time.implapi;version=${project.version},
 						com.blockwithme.time.util;version=${project.version}</Export-Package>
                         <Import-Package>
-               			    org.threeten.bp;version="[0.8,1)",
-               			    org.threeten.bp.jdk8;version="[0.8,1)",
-               			    javax.inject;version="[1.0,2)"
+               			    org.threeten.bp;version="0.8.1",
+               			    org.threeten.bp.jdk8;version="0.8.1",
+               			    javax.inject;version="1.0.0"
               			</Import-Package>
 					</instructions>
 				</configuration>
